@@ -1,0 +1,29 @@
+set_register(reg_addr1 = 20, immediate = 0)
+loop_unit(reg_addr1 = 21, unit_name = 'electrode')
+    set_register(reg_addr1 = 33, immediate = 1)
+    hist_mem(memory_name = 'bci', access_type = 'write', reg_addr1 = 21, reg_addr2 = 33, reg_addr3 = 20)
+IF GV.DEBUG==True
+    if_begin(func_type = 'ge', reg_addr1 = 'timestep', const_name = 'n_t')
+ENDIF
+        set_register(reg_addr1 = 24, const_name = '-template_shift')
+        hist_mem(memory_name = 'bci', access_type = 'read', reg_addr1 = 21, reg_addr2 = 24, reg_addr3 = 25)
+        state_mem(memory_name = 'thresholds', access_type = 'read', reg_addr1 = 21, reg_addr2 = 26)
+        if_begin(func_type = 'gt', reg_addr1 = 26, reg_addr2 = 25)
+            alui_comp(func_type = 'sub', reg_addr1 = 24, immediate = 1, reg_addr2 = 29)
+            alui_comp(func_type = 'add', reg_addr1 = 24, immediate = 1, reg_addr2 = 30)
+            hist_mem(memory_name = 'bci', access_type = 'read', reg_addr1 = 21, reg_addr2 = 29, reg_addr3 = 31)
+            hist_mem(memory_name = 'bci', access_type = 'read', reg_addr1 = 21, reg_addr2 = 30, reg_addr3 = 32)
+            if_begin(func_type = 'gt', reg_addr1 = 31, reg_addr2 = 25)
+                event_trigger(packet_type = 'ss_peak', reg_addr1 = 21, reg_addr2 = 36, func_type = 'gt', reg_addr3 = 32, reg_addr4 = 25)
+IF GV.DEBUG==True
+                if_begin(func_type = 'gt', reg_addr1 = 32, reg_addr2 = 25)
+                    debug_func(func_type = self.debug_module.save_ss_elec, module = self.debug_module, reg_addr1 = 21, reg_addr2 = None, reg_addr3 = 'timestep')
+                if_end()
+ENDIF
+            if_end()
+        if_end()
+IF GV.DEBUG==True
+    if_end()
+ENDIF
+
+unit_end()

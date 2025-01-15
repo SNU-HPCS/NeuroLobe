@@ -1,0 +1,7 @@
+alui_comp(func_type = 'add', reg_addr1 = 'timestep', immediate = 1, reg_addr2 = 'timestep')
+increment_pos()
+
+loop_unit(reg_addr1 = 21, unit_name = 'bci_neuron')
+    rmw_op(func_type = 'pop', access_type = 'htoh', src_mem = 'bci neuron history', dst_mem = 'bci neuron history', reg_addr1 = 21, reg_addr3 = 32)
+    rmw_op(func_type = 'sub', access_type = 'htoh', src_mem = 'bci', dst_mem = 'bci', reg_addr1 = 21, reg_addr3 = 32)
+unit_end()

@@ -1,0 +1,5 @@
+pipelined_loop_corr(memory_name = 'partial template_to_template', reg_addr1 = 21)
+    corr_mem(memory_name = 'partial template_to_template', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
+    rmw_op(func_type = 'add', access_type = 'stos', src_mem = 'template sums S1', dst_mem = 'template sums S1', reg_addr1 = 22, reg_addr3 = 1)
+corr_end()
+

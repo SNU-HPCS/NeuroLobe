@@ -1,0 +1,62 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: spyking-circus
+  version: {{  data.get('version') }}
+
+requirements:
+  build:
+    - python
+    - setuptools
+    
+  run:
+    - libgcc [linux]
+    - python
+    - mpi4py
+    - numpy
+    - mpich >=3 [unix]
+    - cython
+    - scipy
+    - matplotlib
+    - h5py
+    - setuptools
+    - colorama
+    - python-blosc
+    - qt
+    - psutil
+    - tqdm
+    - pyqt
+    - hdf5
+    - statsmodels
+source:
+  git_url: ../
+
+build:
+  noarch_python: False
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+app:
+  entry: spyking-circus .        [win]
+  entry: spyking-circus .        [linux]
+  entry: open ${PREFIX}/bin/spyking-circus_mac.command [osx]
+  icon: app.png
+  summary: Fast Semi Automated Spike Sorting
+  type: neuroscience
+
+test:
+  # Python imports
+  imports:
+    - circus
+    - circus.shared
+    - circus.scripts
+  commands:
+    - spyking-circus -h
+    - python -c "import circus; print(circus.__version__)"
+
+about:
+  home: http://spyking-circus.rtfd.org
+  license: CeCILL-2.1
+  dev_url: https://github.com/spyking-circus/spyking-circus
+  doc_url: http://spyking-circus.rtfd.org
+  summary: 'Fast spike sorting by template matching'

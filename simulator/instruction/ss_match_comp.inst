@@ -1,0 +1,7 @@
+pipelined_loop_corr(memory_name = 'template_to_electrode', reg_addr1 = 21)
+    corr_mem(memory_name = 'template_to_electrode', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
+    pipelined_loop_corr(memory_name = 'template_to_electrode', func_type = 'inner', reg_addr1 = 24, const_name = 'n_t', forward_order = True, include_ts = True)
+        rmw_op(func_type = 'mac', access_type = 'ctoh', src_mem = 'template_to_electrode', dst_mem = 'bci', data_type = 'template', reg_addr1 = 22, reg_addr2 = 24, reg_addr3 = 1)
+    corr_end()
+corr_end()
+

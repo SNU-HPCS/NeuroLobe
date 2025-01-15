@@ -19,3 +19,21 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+---
+
+### Additional Licenses
+
+
+This project contains components with additional licenses:
+
+1. CeCILL 2.1 License:
+   - Applies to code in the `benchmark/spike_sorting/custom_spyking_circus/` directory.
+   - Full license text: `benchmark/spike_sorting/custom_spyking_circus/LICENSE_spyking_circus`.
+
+2. MIT License:
+   - Applies to code in the `benchmark/spike_sorting/custom_spikeinterface/` directory.
+   - Full license text: `benchmark/spike_sorting/custom_spikeinterface/LICENSE_spikeinterface`.
+
+For each component, the respective license terms apply. Users must comply with these terms when using, modifying, or redistributing the code in those directories.

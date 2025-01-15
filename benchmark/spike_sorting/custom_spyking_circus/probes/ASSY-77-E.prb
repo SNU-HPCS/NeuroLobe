@@ -1,0 +1,117 @@
+"""
+ASSY-77-E.prb
+
+Author: Jose Guzman, jose.guzman<at>guzman-lab.com
+Created: Fri Nov 22 10:11:54 CET 2019
+
+The probe file for the silicon probe model ASSY-77 from the E-series
+from Cambridge NeuroTech (info<at>cambridgeneurotech.com)
+The E1 model has 1 mm large shanks, the E2 model has 9 mm shanks.
+The probe consists of FOUR 250 um-separated 
+shanks of 16 recording sites. The 16 recording sites cover a distance of 
+300 um and are spaced every 25 um to 40 um. The total number of electrodes
+is 64. The electrode size is 11x15 um and the shank thickness 15 um.
+
+The file creates a main python dictionary called channel_groups. The 
+dictionary contains four dictionaries called '0', '1', '2' and '3'
+corresponding to the four schanks of the silicon probe (A,B,C and D). 
+Every shank contains another dictionary with "channels", "graph" and 
+"geometry" having the channel number.
+
+"""
+
+#=========================================================================
+# Skyking-circus parameters
+#=========================================================================
+total_nb_channels = 67 # number of recording sites (3 for TTL)
+radius = 200 # spatial extent (in um)
+channel_groups = {1: dict(), 2: dict(), 3: dict(), 4: dict()} # four shanks
+
+#=========================================================================
+# "channels" defined from channel mapping
+#=========================================================================
+shankA = list( reversed( range(16) ))
+shankB = list( reversed( range(16,32) ))
+shankC = list( reversed( range(32,48) ))
+shankD = list( reversed( range(48,64) ))
+
+#=========================================================================
+# Assign "channels" from channel maps 
+#=========================================================================
+channel_groups[1]["channels"] = shankA
+channel_groups[2]["channels"] = shankB
+channel_groups[3]["channels"] = shankC
+channel_groups[4]["channels"] = shankD
+
+#=========================================================================
+# Assign "geometry" for calculated locations 
+#=========================================================================
+def get_locations(xloc = 0):
+    """
+    generate a list of  16 (x,y) coordinates (in um) for a shank
+
+    Arguments:
+    ----------
+    xloc (int): the starting xlocation of the first
+        recording site up in the probe. Moving xloc shifts 
+        the 16 electodes to a different x location.
+
+    Return:
+    -------
+    A list with (x,y) coordinates for 16 electrodes in the shank.
+
+    Example:
+    --------
+    get_geometry(xloc = 250) # return coord shank B
+    """
+
+    mycoor = [
+    [ 0,    0], [70,  -25],
+    [ 5,  -40], [65,  -65],
+    [10,  -80], [60, -105],
+    [15, -120], [55, -145],
+    [20, -160], [50, -185],
+    [25, -200], [45, -225],
+    [30, -240], [40, -265],
+    [35, -280], [35, -305]]
+
+    for electrode in mycoor:
+        electrode[0] += xloc # shift x-coordinate
+
+# create dictionaries 'zipping' shanks and locations
+channel_groups[1]["geometry"] = dict( zip(shankA, get_locations(xloc=0)))
+channel_groups[2]["geometry"] = dict( zip(shankB, get_locations(xloc=250)))
+channel_groups[3]["geometry"] = dict( zip(shankC, get_locations(xloc=500)))
+channel_groups[4]["geometry"] = dict( zip(shankD, get_locations(xloc=750)))
+    
+#=========================================================================
+# Assign "graph" of adjancenct nodes to have klusta compatibility
+#=========================================================================
+def get_graph(shank):
+    """
+    generate adjacency graph. It adds the two closest electrodes for 
+    for every electrode in the shank.
+    
+    Arguments:
+    ---------
+    A shank with the list of electrodes
+
+    Returns:
+    --------
+    A list tuples with the two closest electrodes
+    It is 2x the size of the shank list.
+    """
+    mygraph = list()
+    i = 0;
+    while i<len(shank)-2:
+        mygraph.append( (shank[i],shank[i+1]) ) 
+        mygraph.append( (shank[i],shank[i+2]) )
+        i +=1
+
+    return mygraph
+    
+channel_groups[1]["graph"] = get_graph(shankA)
+channel_groups[2]["graph"] = get_graph(shankB)
+channel_groups[3]["graph"] = get_graph(shankC)
+channel_groups[4]["graph"] = get_graph(shankD)
+    

@@ -1,0 +1,23 @@
+# set necessary params here
+
+[general]
+dataset         = ../../../spike_generator/spiking_data/spikes_BUMP_max.npz
+template_dataset= ../../../spike_generator/spiking_data/templates_BUMP.npz
+# in timestep
+duration        = 10000
+sampling_rate   = 1000
+num_workers     = 1
+use_gpu         = False
+parse_benchmark = False
+
+[template_generation]
+# in sec
+template_window = 5
+
+[template_matching]
+# in msec
+bin_width       = 5
+temp_to_use     = all
+#temp_to_use     = [0,1]
+# duplicate_num   = 2 
+target_cell_num = 1600

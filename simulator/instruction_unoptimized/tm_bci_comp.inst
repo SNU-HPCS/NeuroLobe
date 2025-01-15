@@ -1,0 +1,9 @@
+loop_unit(reg_addr1 = 22, unit_name = 'neuron')
+    state_mem(memory_name = 'neuron i_n', access_type = 'read', reg_addr1 = 22, reg_addr2 = 23)
+    IF GV.sim_params['use_partial'][gtask_id]==True
+        event_trigger(reg_addr1 = 22, reg_addr2 = 23, packet_type = 'tm_spike', func_type = 'neq', reg_addr3 = 23, immediate = 0)
+    ENDIF
+    IF GV.sim_params['use_partial'][gtask_id]==False
+        event_trigger(reg_addr1 = 22, reg_addr2 = 23, packet_type = 'tm_spike_direct', func_type = 'neq', reg_addr3 = 23, immediate = 0)
+    ENDIF
+unit_end()

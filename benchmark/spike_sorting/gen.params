@@ -1,0 +1,22 @@
+# generating recording dataset is divided into 2 steps
+# 1. template generation
+# - gen predefined extracellular waveform for each neuron
+# 2. recording generation
+# - gen recording using template
+
+[general]
+# mode = full, template, recording
+mode = full
+
+[template]
+# temp_num should be sufficiently big
+# NOTE : temp_num is automatically selected
+# sampling frequency of Neuralink is 20KHz
+sampling_freq = 20000
+
+[recording]
+# unit of duration is second(s)
+duration = 10
+# firing rate of exc, inh neuron
+f_exc = 8
+f_inh = 24

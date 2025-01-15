@@ -1,0 +1,11 @@
+pipelined_loop_corr(memory_name = 'bci_neuron_to_neuron', reg_addr1 = 21)
+    corr_mem(memory_name = 'bci_neuron_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 23)
+    corr_mem(memory_name = 'bci_neuron_to_neuron', data_type = 'delay', access_type = 'read', reg_addr1 = 25)
+    IF GV.sim_params['use_partial'][gtask_id]==False
+        rmw_op(func_type = 'mac', access_type = 'ctoh', src_mem = 'bci_neuron_to_neuron', dst_mem = 'weight accum', data_type = 'weight', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 1)
+    ENDIF
+    IF GV.sim_params['use_partial'][gtask_id]==True
+        rmw_op(func_type = 'mac', access_type = 'ctoh', src_mem = 'bci_neuron_to_neuron', dst_mem = 'ext weight accum', data_type = 'weight', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 1)
+    ENDIF
+corr_end()
+

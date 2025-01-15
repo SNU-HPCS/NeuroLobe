@@ -1,0 +1,27 @@
+# Include Matlab files (but not all of them)
+recursive-include circus/matlab_GUI SortingGUI.*
+recursive-include circus/matlab_GUI circus*.m
+recursive-include circus/matlab_GUI DATA*.m
+
+#Include GUI files
+recursive-include circus/qt_GUI *.ui
+
+# Include some probe files
+include probes/mea_64.prb
+include probes/mea_32.prb
+include probes/small_mea_252.prb
+include probes/small_mea_256.prb
+include probes/wide_mea_252.prb
+include probes/wide_mea_256.prb
+include probes/mea_4225.prb
+include probes/imec.prb
+include probes/kampff_32.prb
+include probes/kampff_128.prb
+include probes/emilie.prb
+include probes/adrien.prb
+include probes/dan.prb
+include probes/ASSY-01-P.prb
+include probes/ASSY-37-P.prb
+include probes/ASSY-77-P.prb
+include versioneer.py
+include circus/_version.py

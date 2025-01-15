@@ -1,0 +1,6 @@
+set_register(reg_addr1 = 23, immediate = 1)
+pipelined_loop_corr(memory_name = 'bci_to_neuron', reg_addr1 = 21)
+    corr_mem(memory_name = 'bci_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
+    rmw_op(func_type = 'add', access_type = 'stos', src_mem = 'neuron i_n', dst_mem = 'neuron i_n', reg_addr1 = 22, reg_addr3 = 23)
+corr_end()
+

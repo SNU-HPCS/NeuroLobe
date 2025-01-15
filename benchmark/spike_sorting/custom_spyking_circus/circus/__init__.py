@@ -1,0 +1,25 @@
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
+import importlib
+
+
+def launch(task, filename, nb_cpu, nb_gpu, use_gpu, output=None, benchmark=None, extension='', sim_same_elec=None):
+
+    from circus.shared.parser import CircusParser
+    params = CircusParser(filename)
+
+    if task not in ['filtering', 'benchmarking']:
+        params.get_data_file()
+
+    module = importlib.import_module('circus.' + task)
+
+    if task == 'benchmarking':
+        module.main(params, nb_cpu, nb_gpu, use_gpu, output, benchmark, sim_same_elec)
+    elif task in ['converting', 'deconverting', 'merging']:
+        module.main(params, nb_cpu, nb_gpu, use_gpu, extension)
+    else:
+        module.main(params, nb_cpu, nb_gpu, use_gpu)
+
+

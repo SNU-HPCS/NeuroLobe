@@ -1,0 +1,16 @@
+loop_corr(memory_name = 'bci_neuron_to_neuron', reg_addr1 = 21):
+    corr_mem(memory_name = 'bci_neuron_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 23)
+    corr_mem(memory_name = 'bci_neuron_to_neuron', data_type = 'delay', access_type = 'read', reg_addr1 = 25)
+    corr_mem(memory_name = 'bci_neuron_to_neuron', data_type = 'weight', access_type = 'read', reg_addr1 = 24)
+    alur_comp(func_type = 'mul', reg_addr1 = 1, reg_addr2 = 24, reg_addr4 = 24)
+    IF GV.sim_params['use_partial'][gtask_id]==False
+        hist_mem(memory_name = 'weight accum', access_type = 'read', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 26)
+        alur_comp(func_type = 'add', reg_addr1 = 26, reg_addr2 = 24, reg_addr4 = 26)
+        hist_mem(memory_name = 'weight accum', access_type = 'write', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 26)
+    ENDIF
+    IF GV.sim_params['use_partial'][gtask_id]==True
+        hist_mem(memory_name = 'ext weight accum', access_type = 'read', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 26)
+        alur_comp(func_type = 'add', reg_addr1 = 26, reg_addr2 = 24, reg_addr4 = 26)
+        hist_mem(memory_name = 'ext weight accum', access_type = 'write', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 26)
+    ENDIF
+corr_end()

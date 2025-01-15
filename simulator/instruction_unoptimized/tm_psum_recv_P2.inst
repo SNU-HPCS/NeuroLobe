@@ -1,0 +1,11 @@
+loop_corr(memory_name = 'partial template_to_template', reg_addr1 = 21)
+    corr_mem(memory_name = 'partial template_to_template', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
+
+    hist_mem(memory_name = 'R2', access_type = 'read', reg_addr1 = 22, reg_addr3 = 25)
+    alur_comp(func_type = 'add', reg_addr1 = 25, reg_addr2 = 1, reg_addr4 = 25)
+    hist_mem(memory_name = 'R2', access_type = 'write', reg_addr1 = 22, reg_addr3 = 25)
+
+    state_mem(memory_name = 'template sums S2', access_type = 'read', reg_addr1 = 22, reg_addr2 = 25)
+    alur_comp(func_type = 'add', reg_addr1 = 25, reg_addr2 = 1, reg_addr4 = 25)
+    state_mem(memory_name = 'template sums S2', access_type = 'write', reg_addr1 = 22, reg_addr2 = 25)
+corr_end()

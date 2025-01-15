@@ -1,0 +1,6 @@
+loop_unit(reg_addr1 = 21, unit_name = 'neuron')
+    hist_mem(memory_name = 'history', access_type = 'read', reg_addr1 = 21, reg_addr3 = 22)
+    alur_comp(func_type = 'mul', reg_addr1 = 22, reg_addr2 = 22, reg_addr4 = 23)
+    rmw_op(func_type = 'add', access_type = 'stos', src_mem = 'neuron spikes', dst_mem = 'neuron spikes', reg_addr1 = 21, reg_addr3 = 23)
+    event_trigger(packet_type = 'pc_spike', reg_addr1 = 21, reg_addr2 = 22, func_type = 'gt', reg_addr3 = 22, immediate = 0)
+unit_end()

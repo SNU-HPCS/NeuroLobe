@@ -1,0 +1,6 @@
+pipelined_loop_corr(memory_name = 'neuron_to_pseudo_neuron', reg_addr1 = 21)
+    corr_mem(memory_name = 'neuron_to_pseudo_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 23)
+    corr_mem(memory_name = 'neuron_to_pseudo_neuron', data_type = 'delay', access_type = 'read', reg_addr1 = 25)
+    rmw_op(func_type = 'mac', access_type = 'ctoh', src_mem = 'neuron_to_pseudo_neuron', dst_mem = 'spike weight accum', data_type = 'weight', reg_addr1 = 23, reg_addr2 = 25, reg_addr3 = 1)
+corr_end()
+

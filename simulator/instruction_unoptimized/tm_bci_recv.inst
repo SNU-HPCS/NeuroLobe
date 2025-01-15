@@ -1,0 +1,8 @@
+set_register(reg_addr1 = 23, immediate = 1)
+loop_corr(memory_name = 'bci_to_neuron', reg_addr1 = 21)
+    corr_mem(memory_name = 'bci_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
+    state_mem(memory_name = 'neuron i_n', access_type = 'read', reg_addr1 = 22, reg_addr2 = 25)
+    alur_comp(func_type = 'add', reg_addr1 = 25, reg_addr2 = 23, reg_addr4 = 25)
+    state_mem(memory_name = 'neuron i_n', access_type = 'write', reg_addr1 = 22, reg_addr2 = 25)
+
+corr_end()
