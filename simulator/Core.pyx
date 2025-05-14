@@ -89,9 +89,12 @@ cdef class LoopCtrl:
         # the number of offset increment for each iteration
         self.loop_offset = [0 for _ in range(MAX_DEPTH)]
 
-    cpdef insert(self, func_type, outer_offset, inner_offset,
+        # debugging purpose
+        self.no_loop_ctrl = [0 for _ in range(MAX_DEPTH)]
+
+    cpdef insert(self, loop_type, outer_offset, inner_offset,
                  num_iter, timestep_addr, inst_loop_addr, inst_end_addr,
-                 loop_offset, forward_order):
+                 loop_offset, forward_order, no_loop_ctrl):
 
         op_count["activate_loop_ctrl"] += 1
         self.depth += 1
@@ -102,10 +105,12 @@ cdef class LoopCtrl:
         #
         self.forward_order[self.depth] = forward_order
 
+        self.no_loop_ctrl[self.depth] = no_loop_ctrl
+
         # Arbitrary bit precision
         # the iteration memory offset is set to zero
         # We keep the previous loop offset for inner
-        if func_type == 'outer':
+        if loop_type == 'outer':
             self.inter_addr_offset[self.depth] = outer_offset
             self.intra_addr_offset[self.depth] = 0
             # Preset the offset address in advance
@@ -140,6 +145,8 @@ cdef class LoopCtrl:
         inter_addr_offset = self.inter_addr_offset[self.depth]
         intra_addr_offset = self.intra_addr_offset[self.depth]
 
+        no_loop_ctrl = self.no_loop_ctrl[self.depth]
+
         # increment the counter data by 1
         counter = self.counter[self.depth]
         counter += 1
@@ -157,21 +164,38 @@ cdef class LoopCtrl:
         self.inter_addr_offset[self.depth] += incremented_offset // GV.MEM_WIDTH['corr_mem']
         self.intra_addr_offset[self.depth] = incremented_offset % GV.MEM_WIDTH['corr_mem']
 
+        if no_loop_ctrl:
+            # This includes
+            # 1) incrementing the counter
+            # 2) calculating the inter_addr
+            # 3) calculating the intra_addr
+            op_count['inst_mem'] += 3
+            delta_cyc = 3
+        else: delta_cyc = 0
+
         # if the condition met
         if counter == num_iter:
             addr = self.inst_end_addr[self.depth]
             self.depth -= 1
-            return addr
+            return addr, delta_cyc
         # if the condition unmet
         else:
-            return self.inst_loop_addr[self.depth]
+            return self.inst_loop_addr[self.depth], delta_cyc
 
-    cpdef get_addr(self, offset, width):
+    cpdef get_addr(self, offset):
         # Check if the data is within the given line
         incremented_offset_total = offset + self.intra_addr_offset[self.depth]
         incremented_addr = incremented_offset_total // GV.MEM_WIDTH['corr_mem']
         incremented_offset = incremented_offset_total % GV.MEM_WIDTH['corr_mem']
-        return self.inter_addr_offset[self.depth] + incremented_addr, incremented_offset
+        no_loop_ctrl = self.no_loop_ctrl[self.depth]
+
+        # 1) calculating the inter_addr
+        # 2) calculating the intra_addr
+        if no_loop_ctrl:
+            op_count['inst_mem'] += 2
+            delta_cyc = 2
+        else: delta_cyc = 0
+        return self.inter_addr_offset[self.depth] + incremented_addr, incremented_offset, delta_cyc
 
 # A custom datastructure that stores the events that are processed
 cdef class ProcessingEvent:
@@ -189,6 +213,7 @@ cdef class ProcessingEvent:
         return self.busy_type
 
     cpdef schedule_event(self, event_type, event_data, int ltask_id):
+        if event_type == None: assert(0)
         self.busy_type = event_type
         self.buf[event_type]['processing'] = True
         self.buf[event_type]['data'] = event_data
@@ -231,10 +256,6 @@ cdef class Core:
                  list hist_pos,
                  list hist_mem_offset,
                  list hist_mem,
-                 #list stack_mem_num_entries,
-                 #list stack_mem_offset,
-                 #list stack_mem,
-                 #list stack_ptr,
                  list corr_mem_num_entries,
                  list corr_mem_offset,
                  list corr_mem,
@@ -287,10 +308,6 @@ cdef class Core:
                     hist_pos,
                     hist_mem_offset,
                     hist_mem,
-                    #stack_mem_num_entries,
-                    #stack_mem_offset,
-                    #stack_mem,
-                    #stack_ptr,
                     corr_mem_num_entries,
                     corr_mem_offset,
                     corr_mem,
@@ -443,7 +460,9 @@ cdef class Core:
         output_state = {'cyc' : GV.cyc, 'reg' : self.reg, 'pc' : 0}
         # debug = True
         debug = False
-        if debug: print("event_type", event_type)
+        if debug: 
+            print("event_type", event_type)
+            print("timestep", timestep)
 
         # Has a dedicated operation for the bci_send operation in the external
         if 'bci_send' in event_type:

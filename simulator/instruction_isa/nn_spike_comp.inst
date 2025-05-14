@@ -1,0 +1,11 @@
+loop_corr(memory_name = 'neuron_to_pseudo_neuron', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_pseudo_neuron', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['neuron_to_pseudo_neuron', 'delay'])
+
+    weight = memory(access_type = 'read', mem_type = corr_mem['neuron_to_pseudo_neuron', 'weight'])
+    weight = alu_comp(weight * event_data)
+
+    waccum = memory(access_type = 'read', mem_type = hist_mem['spike_weight_accum', dst_id, delay], no_loop_ctrl = True)
+    waccum = alu_comp(waccum + weight)
+    memory(access_type = 'write', mem_type = hist_mem['spike_weight_accum', dst_id, delay], reg_data = waccum)
+corr_end()

@@ -1,0 +1,15 @@
+n_t = set_register(immediate = const['n_t'])
+n_t_m1 = alu_comp(n_t - imm1)
+
+partial_sum = set_register(immediate = imm0)
+loop_corr(memory_name = 'template_to_electrode', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'delay'])
+    template = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'template'])
+
+    bci = memory(access_type = 'read', mem_type = hist_mem['bci', dst_id, delay], no_loop_ctrl = True)
+    bci = alu_comp(bci * template)
+    partial_sum = alu_comp(bci + partial_sum)
+corr_end()
+
+event_trigger(packet_type = 'ss_partial', reg_addr0 = event_data, reg_addr1 = partial_sum)

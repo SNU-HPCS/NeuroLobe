@@ -1,0 +1,7 @@
+pipelined_loop_corr(memory_name = 'template_to_electrode')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'lid'])
+    time_idx = pipelined_loop_corr(memory_name = 'template_to_electrode', loop_type = 'inner', immediate = const['n_t'], forward_order = True, include_ts = True)
+        rmw_op(func_type = 'mac', access_type = 'ctoh', local_mem = hist_mem['bci', dst_id, time_idx], corr_mem = corr_mem['template_to_electrode', 'template'], reg_data = event_data)
+    corr_end()
+corr_end()
+

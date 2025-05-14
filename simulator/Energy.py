@@ -1,4 +1,5 @@
 import GlobalVars as GV
+import re
 
 op_count = {}
 nJ_per_op = {}
@@ -53,8 +54,6 @@ op_count["send_buf_pop"] = 0
 op_count["send_buf_push"] = 0
 op_count["pck_to_event_table"] = 0 # only read
 # event memory operation
-op_count["stack_mem_pop"] = 0
-op_count["stack_mem_push"] = 0
 op_count["out_event_buf_pop"] = 0
 op_count["out_event_buf_push"] = 0 # number of out_event_buf_pop should be same with out_event_buf_push
 op_count["in_event_buf_pop"] = 0
@@ -65,77 +64,105 @@ op_count["sync_table_read"] = 0
 op_count["sync_table_update"] = 0
 # noc operation
 op_count['NoC_hop'] = 0
-# pipeline
-op_count['pipeline'] = 0
 
-# TODO : set nJ_per_op
+
+def parse_energy_file():
+    f = open('energy.cfg')
+    lines = f.readlines()
+    energy = {'static' : 0}
+    for line in lines:
+        line = line.rstrip()
+        dat = line.split('\t')
+        while '' in dat:
+            dat.remove('')
+        name = dat[0]
+        read_energy = None
+        write_energy = None
+        dynamic_energy = None
+        static_power = None
+        if len(dat) == 4:
+            read_energy = float(dat[1])
+            write_energy = float(dat[2])
+            static_power = float(dat[3])
+            energy[name + '_read'] = read_energy
+            energy[name + '_write'] = write_energy
+            energy['static'] += static_power
+        elif len(dat) == 3:
+            dynamic_energy = float(dat[1])
+            static_power = float(dat[2])
+            energy[name] = dynamic_energy
+            energy['static'] += static_power
+
+    return energy
+
+energy = parse_energy_file()
+
+
 # register read/write operation
-# nJ_per_op["reg_read"] = 0
-# nJ_per_op["reg_write"] = 0
-nJ_per_op["reg_op"] = 0.001611
+nJ_per_op["reg_op"] = energy["reg_op"]
 # alu operation
-nJ_per_op["alu_mac"] = 0.001232
-nJ_per_op["alu_logical"] = 0.000035
-nJ_per_op["alu_mod"] = 0.000013
-nJ_per_op["alu_div"] = 0.011939
-nJ_per_op["alu_sqrt"] = 0.001302
-nJ_per_op["near_cache_alu"] = 0.001439
+nJ_per_op["alu_mac"] = energy["alu_mac"]
+nJ_per_op["alu_logical"] = energy["alu_logical"]
+nJ_per_op["alu_mod"] = energy["alu_mod"]
+nJ_per_op["alu_div"] = energy["alu_div"] + energy["f2f"]
+nJ_per_op["alu_sqrt"] = energy["alu_sqrt"] + energy["f2f"]
+nJ_per_op["near_cache_alu"] = energy["near_cache_alu"]
 # state memory operation
-nJ_per_op["state_mem_read"] = 0.002899
-nJ_per_op["state_mem_write"] = 0.003068
+nJ_per_op["state_mem_read"] = energy["state_mem_read"]
+nJ_per_op["state_mem_write"] = energy["state_mem_write"]
 # history memory operation
-nJ_per_op["hist_mem_read"] = (0.006455 + 0.000843)
-nJ_per_op["hist_mem_write"] = (0.005907 + 0.000843)
-nJ_per_op["hist_mem_cache_access"] = 0.000786 + 0.000843
+nJ_per_op["hist_mem_read"] = energy["hist_mem_read"] + \
+                             energy["hist_mem_trans"]
+nJ_per_op["hist_mem_write"] = energy["hist_mem_write"] + \
+                              energy["hist_mem_trans"]
+nJ_per_op["hist_mem_cache_access"] = energy["hist_mem_cache"]
 
 # correlation memory operation
-nJ_per_op["corr_forward_read"] = 0.00334507
-nJ_per_op["conn_mem_read"] = 0.007814
-nJ_per_op["corr_mem_read"] = 0.0172241
-nJ_per_op["corr_mem_write"] = 0.0135622
-nJ_per_op["corr_mem_cache_access"] = 0.000786
+nJ_per_op["corr_forward_read"] = energy["corr_forward_read"]
+nJ_per_op["conn_mem_read"] = energy["conn_mem_read"]
+nJ_per_op["corr_mem_read"] = energy["corr_mem_read"]
+nJ_per_op["corr_mem_write"] = energy["corr_mem_write"]
+nJ_per_op["corr_mem_cache_access"] = energy["corr_mem_cache"]
+
 # route memory operation
-nJ_per_op["pck_to_route_table"] = 0.000224531
-nJ_per_op["route_mem_forward_read"] = 0.000497563 # only read
-# nJ_per_op["route_mem_forward_write"] = 0
-nJ_per_op["route_mem_read"] = 0.00259618 # only read
-# nJ_per_op["route_mem_write"] = 0
-nJ_per_op["activate_loop_ctrl"] = 0.000553
+nJ_per_op["pck_to_route_table"] = energy["pck_to_route_table_read"]
+nJ_per_op["route_mem_forward_read"] = energy["route_mem_forward_read"]
+nJ_per_op["route_mem_read"] = energy["route_mem_read"]
+nJ_per_op["activate_loop_ctrl"] = energy["activate_loop_ctrl"]
+
 # ack memory operation
-nJ_per_op["ack_left_mem_read"] = 0.000554
-nJ_per_op["ack_left_mem_write"] = 0.000554
-nJ_per_op["ack_num_mem_read"] = 0.000909757
-nJ_per_op["ack_num_mem_write"] = 0.000608293
-nJ_per_op["ack_stack_mem_pop"] = 0.000909757
-nJ_per_op["ack_stack_mem_push"] = 0.000608293
+nJ_per_op["ack_left_mem_read"] = energy["ack_left_mem"]
+nJ_per_op["ack_left_mem_write"] = energy["ack_left_mem"]
+nJ_per_op["ack_num_mem_read"] = energy["ack_num_mem_read"]
+nJ_per_op["ack_num_mem_write"] = energy["ack_num_mem_write"]
+nJ_per_op["ack_stack_mem_pop"] = energy["ack_stack_mem_read"]
+nJ_per_op["ack_stack_mem_push"] = energy["ack_stack_mem_write"]
+
 # instruction memory operation
-nJ_per_op["inst_mem"] = 0.00389856 # only read
-nJ_per_op["event_to_base_bound_table"] = 0.000334833 # only read -> read only once per event scheduling
-nJ_per_op["pc_update"] = 0.000068
+nJ_per_op["inst_mem"] = energy["inst_mem_read"]
+nJ_per_op["event_to_base_bound_table"] = energy["event_to_base_bound_table_read"]
+nJ_per_op["pc_update"] = energy["pc_update"]
 # packet memory operation
-nJ_per_op["recv_buf_pop"] = 0.000883
-nJ_per_op["recv_buf_push"] = 0.001458
-nJ_per_op["send_buf_pop"] = 0.000883
-nJ_per_op["send_buf_push"] = 0.001458
-nJ_per_op["pck_to_event_table"] = 0.000120775 # only read
+nJ_per_op["recv_buf_pop"] = energy["recv_buf_read"]
+nJ_per_op["recv_buf_push"] = energy["recv_buf_write"]
+nJ_per_op["send_buf_pop"] = energy["recv_buf_read"]
+nJ_per_op["send_buf_push"] = energy["recv_buf_write"]
+nJ_per_op["pck_to_event_table"] = energy["pck_to_event_table_read"]
+
 # event memory operation
-nJ_per_op["stack_mem_pop"] = 0.000497563
-nJ_per_op["stack_mem_push"] = 0.000562768
-nJ_per_op["out_event_buf_pop"] = 0.00068713
-nJ_per_op["out_event_buf_push"] = 0.00092437
-nJ_per_op["in_event_buf_pop"] = 0.00377371
-nJ_per_op["in_event_buf_push"] = 0.00450547
-nJ_per_op["event_table"] = 0.000334833 # only read
+nJ_per_op["out_event_buf_pop"] = energy["out_event_buf_read"]
+nJ_per_op["out_event_buf_push"] = energy["out_event_buf_write"]
+nJ_per_op["in_event_buf_pop"] = energy["in_event_buf_read"]
+nJ_per_op["in_event_buf_push"] = energy["in_event_buf_write"]
+nJ_per_op["event_table"] = energy["event_table_read"]
 # sync table operation
-nJ_per_op["sync_table_read"] = 0.000082
-nJ_per_op["sync_table_update"] = 0.000082
+nJ_per_op["sync_table_read"] = energy["sync_table"]
+nJ_per_op["sync_table_update"] = energy["sync_table"]
 # noc operation
 # Read + Write Buffer + Link
-nJ_per_op['NoC_hop'] = 0.000882536 + 0.00145796 + 0.015790
-# pipeline
-nJ_per_op['pipeline'] = 0.000304
+nJ_per_op['NoC_hop'] = energy["recv_buf_read"] + energy["recv_buf_write"] + energy["wire"]
 
-mW_static = 1.421238
+mW_static = energy["static"]
 
 def calculate_energy():
     energy = 0

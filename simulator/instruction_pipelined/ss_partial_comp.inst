@@ -1,0 +1,1 @@
+rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['distance', event_pid], reg_data = event_data)

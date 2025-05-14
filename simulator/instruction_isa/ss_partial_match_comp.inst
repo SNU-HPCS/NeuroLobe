@@ -1,0 +1,4 @@
+loop_corr(memory_name = 'template_to_partial_electrode', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_partial_electrode', 'lid'])
+    event_trigger(packet_type = 'ss_full_match', reg_addr0 = dst_id, reg_addr1 = event_data)
+corr_end()

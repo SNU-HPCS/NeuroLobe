@@ -1,53 +1,60 @@
 ## Requirements
 
+Run `./install.sh` to install all the following requirements.  
+  
+  
 #### Dependencies for HW simulator
 
 - python=3.9  
-- numpy  
-- cython  
-- pandas  
+- numpy=1.24.4  
+- cython=3.0.9  
+- pandas=1.3.4  
 
 
 
 #### Dependencies for SW simulator & benchmark generation
 
-- python=3.9  
-- numpy  
-- cupy  
-- h5py  
-- nlb-tools  
-- dandi  
-- elephant  
-- networkx  
-- MEArec  
-- LFPy
-- npy_append_array  
-- yappi
+- h5py=3.10.0  
+- statsmodels=0.14.1
+- nlb-tools=0.0.3  
+- dandi=0.60.0  
+- elephant=1.0.0  
+- networkx=3.2.1  
+- MEArec=1.9.0  
+- npy-append-array=0.9.16  
+- yappi=1.6.0  
+- lfpy=2.3  
+- pyqt5=5.15.10  
+- cupy-cuda113=10.6.0  
+- torch=1.12.1+cu113  
+- torchvision=0.13.1+cu113  
+- torchaudio=0.12.1  
+
 - custom_slayer  
 
     ```
-    cd benchmark/slayerFCSNN/custom_slayer/cuda_toolkit  
+    cd benchmark/generate_workload/neural_network/custom_slayer/cuda_toolkit  
     pip install -e .  
     ```  
   
 - custom_spikeinterface  
 
     ```
-    cd benchmark/spike_sorting/custom_spikeinterface  
+    cd benchmark/generate_workload/spike_sorting/custom_spikeinterface  
     pip install -e .  
     ```  
   
 - custom_spyking_circus  
 
     ```
-    cd benchmark/spike_sorting/custom_spyking_circus  
+    cd benchmark/generate_workload/spike_sorting/custom_spyking_circus  
     pip install -e .  
     ```  
   
 - neo  
 
     ```
-    cd benchmark/spike_sorting/python-neo  
+    cd benchmark/generate_workload/spike_sorting/python-neo  
     pip install -e .  
     ```  
   
@@ -59,24 +66,24 @@ Following steps create benchmark data and save them in  `benchmark/dataset`.
 
   
 ```
-cd benchmark
+cd benchmark/generate_workload
 ```
 
   
 #### Pairwise Correlation  
-1. `cd spike_geneartor`  
+1. `cd spike_generator`  
 2. Set parameters in `gen.params`.  
 3. `python spike_generator.py`  
 4. `cd ../pairwise_correlation`  
-3. Set parameters in  `pc.params`.  
-4. `python PairwiseCorrelation.py`  
+5. Set parameters in  `pc.params`.  
+6. `python PairwiseCorrelation.py`  
 
   
 #### Template Matching  
-1. `cd spike_geneartor`  
+1. `cd spike_generator`  
 2. Set parameters in `gen.params`.  
 3. `python spike_generator.py`  
-4. `python template_geneartor.py`  
+4. `python template_generator.py`  
 5. `cd ../template_matching`  
 6. Set parameters in `tm.params`.  
 7. `python TemplateMatching.py`  
@@ -84,11 +91,12 @@ cd benchmark
   
 #### Neural Network  
 1. `cd neural_network`    
+2. Set parameters in `gen.params`.  
 3. `python preprocess_maze.py`  
 4. `python postproess_maze.py`  
 5. Set hyperparameters in `test.sh`.  
 6. Set model (ANN / SNN) in `run.sh`.  
-6. `./run.sh`  
+7. `./run.sh`  
 
   
 #### Spike Sorting  
@@ -99,20 +107,20 @@ cd benchmark
 5. `./SpikeSorting.sh`  
 
 ##
-## Running the Simulator
+## Running the SW Implementation
 
-### SW simulation
 Change directory to the target benchmark and set parameters in `{algorithm}.params`.  
 ```
-cd benchmark/SW_profile/{algorithm}
+cd benchmark/sw_profile/{algorithm}
 ```
 
-#### GPU  
+### GPU  
 ```
+cd gpu
 python {algorithm}_gpu.py
 ```
   
-#### CPU
+### CPU
 ```
 cd cpu  
 ./compile.sh  
@@ -120,19 +128,21 @@ python {algorithm}.py
 ```
 
   
+##
+## Running the Simulator
 
-### HW simulation
+The users should follow the procedures below to simulate the target BCI algorithms.
 
-Set simulation parameters in `simulator.cfg` and `example_{algorithm}.cfg`.  
-Compile with `compile.py` and simulate with `simulate.py`.
+1. Define the synchronization pattern in the `simulator/sync_pattern.py` and run `python simulator/sync_pattern.py`.  
+
+2. Program the instructions for the event-driven computations and pre/post-processing for the *.inst files in `simulator/instruction_pipelined`.  
+
+3. Set simulation parameters in `simulator.cfg` and `example_{algorithm}.cfg`.  
+
+4. Compile with `compile.py` and simulate with `simulate.py`.
 ```
-python compile.py simualtor.cfg example_snn.cfg example_tm.cfg ...  
+python compile.py simulator.cfg example_snn.cfg example_tm.cfg ...  
 python simulate.py
-```
-  
-To add new algorithm, run the task compiler before running the simulator.
-```
-python task_compiler.py
 ```
   
   

@@ -1,0 +1,4 @@
+tid = loop_unit(unit_name = template)
+    template_occupied = memory(access_type = 'read', mem_type = state_mem['template_occupied', tid])
+    event_trigger(packet_type = 'ss_template', reg_addr0 = tid, ack_type = True, condition = 'template_occupied != imm0')
+unit_end()

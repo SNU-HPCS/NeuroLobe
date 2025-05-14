@@ -160,6 +160,7 @@ cdef class Memory:
         else:
             assert(0)
 
+    # This involves at most three cycles (w/o loop ctrl)
     cpdef get_hist_addr(self, data_type, ltask_id, virtual_addr, pos):
         unit_offset = self.hist_metadata[ltask_id]['unit_offset'][data_type]
         log2_precision = self.hist_metadata[ltask_id]['log2_precision'][data_type]
@@ -168,23 +169,30 @@ cdef class Memory:
         addr = unit_offset * virtual_addr
 
         pos += self.hist_pos[self.hist_task_translator[ltask_id][data_type]]['val']
-        if pos >= length:
-            pos -= length
-        elif pos < 0:
-            pos += length
-
+        while True:
+            if pos >= length:
+                pos -= length
+            elif pos < 0:
+                pos += length
+            else:
+                break
+        
         # All these functions can be replaced with bitwise operators
         entries_per_line = GV.MEM_WIDTH['hist_mem'] >> log2_precision
         assert(pos >= 0 and pos < length)
         addr += pos >> (5 - log2_precision)
         offset = (pos & (entries_per_line - 1)) << log2_precision
+
         assert(addr < self.hist_mem_num_entries[ltask_id][data_type])
         return addr, offset
 
-    cpdef read_hist_mem(self, data_type, mem_offset, ltask_id, virtual_addr, pos):
+    cpdef read_hist_mem(self, data_type, mem_offset, ltask_id, virtual_addr, pos, no_loop_ctrl = False):
         physical_addr, offset = self.get_hist_addr(data_type, ltask_id, virtual_addr, pos)
         physical_addr += mem_offset
-        stall = 0
+        if no_loop_ctrl:
+            op_count['inst_mem'] += 3
+            stall = 3
+        else: stall = 0
         # Directly access the write buffer
         if physical_addr in self.hist_mem_cache_addr:
             write_entry = self.hist_mem_cache_addr.index(physical_addr)
@@ -221,10 +229,13 @@ cdef class Memory:
 
             return copy.deepcopy(self.hist_mem_cache_dat[write_entry][offset]), stall
 
-    cpdef write_hist_mem(self, data_type, mem_offset, ltask_id, virtual_addr, pos, write_dat):
+    cpdef write_hist_mem(self, data_type, mem_offset, ltask_id, virtual_addr, pos, write_dat, no_loop_ctrl = False):
         physical_addr, offset = self.get_hist_addr(data_type, ltask_id, virtual_addr, pos)
         physical_addr += mem_offset
-        stall = 0 
+        if no_loop_ctrl:
+            op_count['inst_mem'] += 3
+            stall = 3
+        else: stall = 0
 
         # Directly access the write buffer
         if physical_addr in self.hist_mem_cache_addr:
@@ -320,27 +331,6 @@ cdef class Memory:
             return data, stall
         else:
             assert(0)
-
-    ## generate entry for partial distance accumulation
-    #cpdef push_stack_mem(self, data_type, mem_offset, ltask_id, init_write_dat):
-    #    virtual_addr = self.stack_ptr[ltask_id][data_type]
-    #    self.stack_ptr[ltask_id][data_type] += 1
-    #    physical_addr = virtual_addr + mem_offset
-    #    self.stack_mem[physical_addr] = init_write_dat
-    #    op_count['stack_mem_push'] += 1
-
-    ## pop the entry and decrement stack ptr
-    #cpdef pop_stack_mem(self, data_type, mem_offset, ltask_id):
-    #    assert(self.stack_ptr[ltask_id][data_type] > 0)
-    #    self.stack_ptr[ltask_id][data_type] -= 1
-    #    virtual_addr = self.stack_ptr[ltask_id][data_type]
-    #    physical_addr = virtual_addr + mem_offset
-    #    data = self.stack_mem[physical_addr]
-    #    data = copy.deepcopy(data)
-    #    return data
-
-    #cpdef check_empty(self, data_type, mem_offset, ltask_id):
-    #    return (self.stack_ptr[ltask_id][data_type] == 0)
 
     cpdef read_corr_forward(self, data_type, mem_offset, ltask_id, virtual_addr):
         assert(0 <= virtual_addr < self.corr_forward_num_entries[ltask_id][data_type])
@@ -449,11 +439,6 @@ cdef class Memory:
             else:
                 # search entry to evict
                 reuse_entry = self.corr_mem_cache_queue[0]
-                # for entry in self.corr_mem_cache_queue:
-                #     if not self.corr_mem_cache_dirty[entry]:
-                #         reuse_entry = entry
-                #         break
-                # move the entry to the end of the queue
                 self.corr_mem_cache_queue.remove(reuse_entry)
                 self.corr_mem_cache_queue.append(reuse_entry)
 
@@ -554,35 +539,6 @@ cdef class Memory:
             data = self.ack_stack_mem[physical_addr]
             data = copy.deepcopy(data)
         return is_empty, data
-
-    # # process memory writeback for memories not used
-    # cpdef memory_writeback(self, use_corr, use_hist, use_state):
-    #     if not use_corr and len(self.corr_mem_cache_queue) == self.corr_mem_cache_size:
-    #         # search entry to evict
-    #         to_evict = None
-    #         for entry in self.corr_mem_cache_queue[:-1]:
-    #             if self.corr_mem_cache_dirty[entry]:
-    #                 to_evict = entry
-    #                 break
-    #         if to_evict != None:
-    #             self.corr_mem[self.corr_mem_cache_addr[to_evict]] = self.corr_mem_cache_dat[to_evict]
-    #             op_count['corr_mem_cache_access'] += 1
-    #             op_count['corr_mem_write'] += 1
-    #             self.corr_mem_cache_dirty[to_evict] = False
-
-    #     if not use_hist and len(self.hist_mem_cache_queue) == self.hist_mem_cache_size:
-    #         # search entry to evict
-    #         to_evict = None
-    #         for entry in self.hist_mem_cache_queue[:-1]:
-    #             if self.hist_mem_cache_dirty[entry]:
-    #                 to_evict = entry
-    #                 break
-    #         if to_evict != None:
-    #             self.hist_mem[self.hist_mem_cache_addr[to_evict]] = self.hist_mem_cache_dat[to_evict].copy()
-    #             op_count['hist_mem_cache_access'] += 1
-    #             op_count['hist_mem_write'] += 1
-    #             self.hist_mem_cache_dirty[to_evict] = False
-
 
     # save current memories to mem_state
     cpdef save_mem(self, mem_state):

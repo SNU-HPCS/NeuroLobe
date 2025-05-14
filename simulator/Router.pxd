@@ -49,8 +49,8 @@ cdef class Synchronizer:
 cdef class Router:
     # position
     cdef int ind
-    cdef int x
-    cdef int y
+    cdef public int x
+    cdef public int y
     cdef int external
     cdef Core.Core core
 

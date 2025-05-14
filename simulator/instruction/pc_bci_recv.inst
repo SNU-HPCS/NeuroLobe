@@ -1,5 +1,0 @@
-pipelined_loop_corr(memory_name = 'bci_to_neuron', func_type = 'outer', reg_addr1 = 21)
-    corr_mem(memory_name = 'bci_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
-    rmw_op(func_type = 'add', access_type = 'htoh', src_mem = 'history', dst_mem = 'history', reg_addr1 = 22, reg_addr3 = 1)
-corr_end()
-

@@ -1,0 +1,7 @@
+timestep = alu_comp(timestep + imm1)
+increment_pos()
+
+const0 = set_register(immediate = imm0)
+nid = loop_unit(unit_name = neuron)
+    memory(access_type = 'write', mem_type = hist_mem['history', nid], reg_data = const0)
+unit_end()

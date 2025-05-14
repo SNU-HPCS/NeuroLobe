@@ -1,0 +1,15 @@
+event_sq = alu_comp(event_data * event_data)
+
+pipelined_loop_corr(memory_name = 'neuron_to_template')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_template', 'lid'])
+
+    rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['template_sums_S2', dst_id], reg_data = event_data)
+    rmw_op(func_type = 'add', access_type = 'htoh', local_mem = hist_mem['R2', dst_id], reg_data = event_data)
+    rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['template_sums_S3', dst_id], reg_data = event_sq)
+    rmw_op(func_type = 'add', access_type = 'htoh', local_mem = hist_mem['R3', dst_id], reg_data = event_sq)
+
+    time_idx = pipelined_loop_corr(memory_name = 'neuron_to_template', loop_type = 'inner', immediate = const['temp_width'], forward_order = False, include_ts = False)
+        rmw_op(func_type = 'mac', access_type = 'ctoh', local_mem = hist_mem['P1', dst_id, time_idx], corr_mem = corr_mem['neuron_to_template', 'template'], reg_data = event_data)
+    corr_end()
+corr_end()
+

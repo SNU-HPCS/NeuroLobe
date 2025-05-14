@@ -1,0 +1,3 @@
+bci = memory(access_type = 'read', mem_type = state_mem['distance', event_pid])
+bci = alu_comp(bci + event_data)
+memory(access_type = 'write', mem_type = state_mem['distance', event_pid], reg_data = bci)

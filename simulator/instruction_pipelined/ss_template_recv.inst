@@ -1,0 +1,10 @@
+partial_sum = set_register(immediate = imm0)
+pipelined_loop_corr(memory_name = 'template_to_electrode')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'lid'])
+    time_idx = pipelined_loop_corr(memory_name = 'template_to_electrode', loop_type = 'inner', immediate = const['n_t'], forward_order = True, include_ts = True)
+        partial_sum = rmw_op(func_type = 'mac', access_type = 'chtor', local_mem = hist_mem['bci', dst_id, time_idx], corr_mem = corr_mem['template_to_electrode', 'template'])
+    corr_end()
+corr_end()
+# Set the state for the template pid
+rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['partial_distance', event_pid], reg_data = partial_sum)
+memory(access_type = 'write', mem_type = state_mem['partial_source', event_pid], reg_data = event_data)

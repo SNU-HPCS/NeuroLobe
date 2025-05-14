@@ -1,9 +1,0 @@
-# set necessary params here
-
-[path]
-save_dir        = ./spiking_data
-data_dir        = ../spike_generator/dandi_data/000128/sub-Jenkins
-
-[dataset]
-target_cell_num = 1600
-fr_scale        = 16

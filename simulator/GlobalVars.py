@@ -1,7 +1,7 @@
 import random
 
 SCHEDULER = 0
-DEBUG = 1
+DEBUG = 0
 SAVE_ARCH = False
 mem_state = None
 
@@ -10,7 +10,7 @@ mem_state = None
 MEM_WIDTH = { 'corr_forward' : 32,
               'corr_mem'     : 32,  # 
               'route_forward': 16,  # 16bit for indirection
-              'route_mem'    : 24,  # 8bit for the core_id, 16 bit for the pid
+              'route_mem'    : 32,  # 8bit for the core_id, 16 bit for the pid
               'hist_mem'     : 32,  # fixed to 32 bit
               'state_mem'     : 32,  # fixed to 32 bit
               #'stack_mem'    : 8,   # 8bit (lid)

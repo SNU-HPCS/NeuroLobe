@@ -1,4 +1,0 @@
-loop_unit(reg_addr1 = 22, unit_name = 'bci_neuron')
-    hist_mem(memory_name = 'bci', access_type = 'read', reg_addr1 = 22, reg_addr3 = 27)
-    event_trigger(packet_type = 'nn_ext', reg_addr1 = 22, reg_addr2 = 27, func_type = 'neq', reg_addr3 = 27, immediate = 0)
-unit_end()

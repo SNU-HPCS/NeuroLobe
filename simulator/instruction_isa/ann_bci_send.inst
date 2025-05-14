@@ -1,0 +1,13 @@
+timestep = alu_comp(timestep + imm1)
+increment_pos()
+
+nid = loop_unit(unit_name = bci_neuron)
+    const0 = set_register(immediate = imm0)
+    
+    bci_hist = memory(access_type = 'read', mem_type = hist_mem['bci_neuron_history', nid])
+    memory(access_type = 'write', mem_type = hist_mem['bci_neuron_history', nid], reg_data = const0)
+
+    bci = memory(access_type = 'read', mem_type = hist_mem['bci', nid])
+    bci = alu_comp(bci - bci_hist)
+    memory(access_type = 'write', mem_type = hist_mem['bci', nid], reg_data = bci)
+unit_end()

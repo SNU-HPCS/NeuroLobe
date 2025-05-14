@@ -1,7 +1,0 @@
-alui_comp(func_type = 'mod', reg_addr1 = 'timestep', const_name = 'corr_period', reg_addr2 = 21)
-if_begin(func_type = 'eq', reg_addr1 = 21, immediate = 0)
-    loop_unit(reg_addr1 = 22, unit_name = 'neuron')
-        state_mem(memory_name = 'neuron spikes', access_type = 'read', reg_addr1 = 22, reg_addr2 = 23)
-        event_trigger(packet_type = 'pc_sum', reg_addr1 = 22, reg_addr2 = 23, func_type = 'gt', reg_addr3 = 23, immediate = 0)
-    unit_end()
-if_end()

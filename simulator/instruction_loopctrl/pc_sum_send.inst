@@ -1,0 +1,7 @@
+timestep_mod = alu_comp(timestep % const['corr_period'])
+if_begin(timestep_mod == imm0)
+    nid = loop_unit(unit_name = neuron)
+        spikes = memory(access_type = 'read', mem_type = state_mem['neuron_spikes', nid])
+        event_trigger(packet_type = 'pc_sum', reg_addr0 = nid, reg_addr1 = spikes, condition = 'spikes > imm0')
+    unit_end()
+if_end()

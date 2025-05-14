@@ -1,0 +1,68 @@
+const0 = set_register(immediate = imm0)
+IF NO_PARTIAL
+tid = loop_unit(unit_name = template)
+    P1 = memory(access_type = 'read', mem_type = hist_mem['P1', tid])
+    memory(access_type = 'write', mem_type = hist_mem['P1', tid], reg_data = const0)
+    #P1 = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['P1', tid])
+
+    S1 = memory(access_type = 'read', mem_type = state_mem['template_sums_S1', tid])
+    S1 = alu_comp(S1 + P1)
+    memory(access_type = 'write', mem_type = state_mem['template_sums_S1', tid], reg_data = S1)
+    #rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['template_sums_S1', tid], reg_data = P1)
+unit_end()
+ENDIF
+
+timestep = alu_comp(timestep + imm1)
+increment_pos()
+
+tid = loop_unit(unit_name = template)
+    C1 = memory(access_type = 'read', mem_type = state_mem['template_constants_C1', tid])
+    C2 = memory(access_type = 'read', mem_type = state_mem['template_constants_C2', tid])
+    C3 = memory(access_type = 'read', mem_type = state_mem['template_constants_C3', tid])
+
+    S1 = memory(access_type = 'read', mem_type = state_mem['template_sums_S1', tid])
+    S2 = memory(access_type = 'read', mem_type = state_mem['template_sums_S2', tid])
+    S3 = memory(access_type = 'read', mem_type = state_mem['template_sums_S3', tid])
+
+    S2_sq = alu_comp(S2 * S2)
+    C1S3 = alu_comp(C1 * S3)
+    denominator = alu_comp(C1S3 - S2_sq)
+
+    pcc = set_register(immediate = imm100)
+    if_begin(denominator != imm0)
+        if_begin(C3 != imm0)
+            C1S1 = alu_comp(C1 * S1)
+            C2S2 = alu_comp(C2 * S2)
+            numerator = alu_comp(C1S1 - C2S2)
+            numerator = alu_comp(numerator * numerator)
+            pcc = alu_comp(numerator / denominator)
+            pcc = alu_comp(pcc / C3)
+        if_end()
+    if_end()
+    if_begin(timestep >= const['temp_width'])
+        probe(reg_addr0 = tid, reg_addr1 = pcc)
+        shifted_timestep = alu_comp(timestep - const['temp_width'])
+        debug_func(func_type = self.debug_module.save_tm_corr, module = self.debug_module, reg_addr0 = tid, reg_addr1 = pcc, reg_addr2 = shifted_timestep)
+
+        R2 = memory(access_type = 'read', mem_type = hist_mem['R2', tid])
+        memory(access_type = 'write', mem_type = hist_mem['R2', tid], reg_data = const0)
+
+        R3 = memory(access_type = 'read', mem_type = hist_mem['R3', tid])
+        memory(access_type = 'write', mem_type = hist_mem['R3', tid], reg_data = const0)
+
+        #R2 = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['R2', tid])
+        #R3 = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['R3', tid])
+
+        S2 = alu_comp(S2 - R2)
+        S3 = alu_comp(S3 - R3)
+
+        memory(access_type = 'write', mem_type = state_mem['template_sums_S2', tid], reg_data = S2)
+        memory(access_type = 'write', mem_type = state_mem['template_sums_S3', tid], reg_data = S3)
+    if_end()
+    
+    memory(access_type = 'write', mem_type = state_mem['template_sums_S1', tid], reg_data = const0)
+unit_end()
+
+nid = loop_unit(unit_name = neuron)
+    memory(access_type = 'write', mem_type = state_mem['neuron_i_n', nid], reg_data = const0)
+unit_end()

@@ -1,0 +1,6 @@
+pipelined_loop_corr(memory_name = 'partial_template_to_template')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['partial_template_to_template', 'lid'])
+    rmw_op(func_type = 'add', access_type = 'htoh', local_mem = state_mem['R3', dst_id], reg_data = event_data)
+    rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['template_sums_S3', dst_id], reg_data = event_data)
+corr_end()
+

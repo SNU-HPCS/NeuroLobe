@@ -1,0 +1,7 @@
+pipelined_loop_corr(memory_name = 'neuron_to_neuron')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_neuron', 'lid'])
+    time_idx = pipelined_loop_corr(memory_name = 'neuron_to_neuron', loop_type = 'inner', immediate = const['window'], forward_order = False, include_ts = True)
+        rmw_op(func_type = 'mac', access_type = 'htoc', local_mem = hist_mem['history', dst_id, time_idx], corr_mem = corr_mem['neuron_to_neuron', 'partial_correlation'], reg_data = event_data)
+    corr_end()
+corr_end()
+

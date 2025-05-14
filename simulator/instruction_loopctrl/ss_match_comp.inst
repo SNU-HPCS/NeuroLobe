@@ -1,0 +1,15 @@
+n_t = set_register(immediate = const['n_t'])
+n_t_m1 = alu_comp(n_t - imm1)
+
+loop_corr(memory_name = 'template_to_electrode')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'lid'])
+    time_idx = loop_corr(memory_name = 'template_to_electrode', loop_type = 'inner', immediate = const['n_t'], forward_order = True, include_ts = True)
+
+        template = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'template'])
+        template = alu_comp(template * event_data)
+
+        bci = memory(access_type = 'read', mem_type = hist_mem['bci', dst_id, time_idx])
+        bci = alu_comp(bci + template)
+        memory(access_type = 'write', mem_type = hist_mem['bci', dst_id, time_idx], reg_data = bci)
+    corr_end()
+corr_end()

@@ -1,8 +1,0 @@
-set_register(reg_addr1 = 23, immediate = 1)
-set_register(reg_addr1 = 20, immediate = 0)
-loop_unit(reg_addr1 = 21, unit_name = 'pseudo_neuron')
-    hist_mem(memory_name = 'spike weight accum', access_type = 'read', reg_addr1 = 21, reg_addr2 = 23, reg_addr3 = 22)
-    hist_mem(memory_name = 'spike weight accum', access_type = 'write', reg_addr1 = 21, reg_addr2 = 23, reg_addr3 = 20)
-
-    event_trigger(packet_type = 'nn_spike_sum', reg_addr1 = 21, reg_addr2 = 22, func_type = 'neq', reg_addr3 = 22, immediate = 0)
-unit_end()

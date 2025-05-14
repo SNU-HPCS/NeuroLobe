@@ -1,0 +1,27 @@
+const_m1 = set_register(immediate = imm-1)
+prev_id = set_register(immediate = imm-1)
+loop_corr(memory_name = 'neuron_to_partial_template', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_template', 'lid'])
+    
+    if_begin(prev_id != dst_id)
+        event_sq = alu_comp(event_data * event_data)
+
+        P2 = memory(access_type = 'read', mem_type = state_mem['template_psums_P2', dst_id])
+        P2 = alu_comp(P2 + event_data)
+        memory(access_type = 'write', mem_type = state_mem['template_psums_P2', dst_id], reg_data = P2)
+
+        P3 = memory(access_type = 'read', mem_type = state_mem['template_psums_P3', dst_id])
+        P3 = alu_comp(P3 + event_sq)
+        memory(access_type = 'write', mem_type = state_mem['template_psums_P3', dst_id], reg_data = P3)
+    if_end()
+    prev_id = alu_comp(dst_id + imm0)
+
+    template = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_template', 'template'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_template', 'delay'])
+    template = alu_comp(template * event_data)
+
+    P1 = memory(access_type = 'read', mem_type = hist_mem['P1', dst_id, delay], no_loop_ctrl = True)
+    P1 = alu_comp(P1 + template)
+    memory(access_type = 'write', mem_type = hist_mem['P1', dst_id, delay], reg_data = P1)
+corr_end()
+
