@@ -1,0 +1,5 @@
+loop_corr(memory_name = 'bci_to_electrode', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['bci_to_electrode', 'lid'])
+    memory(access_type = 'write', mem_type = hist_mem['bci', dst_id], reg_data = event_data, no_loop_ctrl = True)
+corr_end()
+

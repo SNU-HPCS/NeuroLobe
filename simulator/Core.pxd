@@ -41,11 +41,13 @@ cdef class LoopCtrl:
     # the number of offset increment for each iteration
     cdef list loop_offset
 
+    cdef list no_loop_ctrl
+
     cpdef insert(self, func_type, outer_offset, inner_offset,
                  num_iter, count_addr, inst_loop_addr, inst_end_addr,
-                 loop_offset, forward_order)
+                 loop_offset, forward_order, no_loop_ctrl)
     cpdef iterate(self)
-    cpdef get_addr(self, offset, width)
+    cpdef get_addr(self, offset)
 
 cdef class ProcessingEvent:
     cdef dict buf

@@ -1,0 +1,17 @@
+loop_corr(memory_name = 'bci_neuron_to_neuron')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['bci_neuron_to_neuron', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['bci_neuron_to_neuron', 'delay'])
+    weight = memory(access_type = 'read', mem_type = corr_mem['bci_neuron_to_neuron', 'weight'])
+    weight = alu_comp(weight * event_data)
+IF PARTIAL
+    waccum = memory(access_type = 'read', mem_type = hist_mem['ext_weight_accum', dst_id, delay])
+    waccum = alu_comp(weight + waccum)
+    memory(access_type = 'write', mem_type = hist_mem['ext_weight_accum', dst_id, delay], reg_data = waccum)
+ENDIF
+IF NO_PARTIAL
+    waccum = memory(access_type = 'read', mem_type = hist_mem['weight_accum', dst_id, delay])
+    waccum = alu_comp(weight + waccum)
+    memory(access_type = 'write', mem_type = hist_mem['weight_accum', dst_id, delay], reg_data = waccum)
+ENDIF
+corr_end()
+

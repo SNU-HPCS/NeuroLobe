@@ -1,0 +1,6 @@
+pipelined_loop_corr(memory_name = 'neuron_to_pseudo_neuron')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_pseudo_neuron', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['neuron_to_pseudo_neuron', 'delay'])
+    rmw_op(func_type = 'mac', access_type = 'ctoh', local_mem = hist_mem['spike_weight_accum', dst_id, delay], corr_mem = corr_mem['neuron_to_pseudo_neuron', 'weight'], reg_data = event_data)
+corr_end()
+

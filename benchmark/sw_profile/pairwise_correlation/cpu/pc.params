@@ -1,0 +1,25 @@
+# set necessary params here
+
+[general]
+dataset         = ../../../generate_workload/spike_generator/spiking_data/spikes_RTT_max.npz
+# duration        = 100000000
+duration        = 10000
+sampling_rate   = 1000
+num_workers       = 1
+num_gpu           = 0
+use_gpu           = False
+parse_benchmark   = False
+
+[pairwise_correlation]
+# in msec
+bin_width       = 1
+window          = 20
+corr_period     = 100
+# 1600 / 3200
+target_cell_num = 1600
+
+[network_config]
+
+# 0.1 / 0.05
+epsilon         = 0.1
+beta            = 1.0

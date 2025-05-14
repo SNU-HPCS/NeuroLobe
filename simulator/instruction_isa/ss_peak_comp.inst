@@ -1,0 +1,8 @@
+const1 = set_register(immediate = imm1)
+loop_corr(memory_name = 'electrode_to_template', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['electrode_to_template', 'lid'])
+    template_occupied = memory(access_type = 'read', mem_type = state_mem['template_occupied', dst_id])
+
+    memory(access_type = 'write', mem_type = state_mem['template_occupied', dst_id], reg_data = const1)
+    event_trigger(packet_type = 'ss_template', reg_addr0 = dst_id, ack_type = True, condition = 'template_occupied == imm0')
+corr_end()

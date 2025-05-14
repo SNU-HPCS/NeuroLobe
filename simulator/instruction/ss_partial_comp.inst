@@ -1,1 +1,0 @@
-rmw_op(func_type = 'add', access_type = 'stos', src_mem = 'partial_distance', dst_mem = 'partial_distance', reg_addr1 = 0, reg_addr3 = 1)

@@ -1,0 +1,4 @@
+loop_corr(memory_name = 'neuron_to_partial_connection', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_connection', 'lid'])
+    event_trigger(packet_type = 'pc_full_sum', reg_addr0 = dst_id, reg_addr1 = event_data)
+corr_end()

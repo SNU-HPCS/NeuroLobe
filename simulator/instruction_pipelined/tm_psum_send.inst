@@ -1,0 +1,9 @@
+tid = loop_unit(unit_name = partial_template)
+    P1 = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['P1', tid])
+    P2 = rmw_op(func_type = 'pop', access_type = 'stos', local_mem = state_mem['template_psums_P2', tid])
+    P3 = rmw_op(func_type = 'pop', access_type = 'stos', local_mem = state_mem['template_psums_P3', tid])
+
+    event_trigger(packet_type = 'tm_psum_P1', reg_addr0 = tid, reg_addr1 = P1, condition = 'P1 > imm0')
+    event_trigger(packet_type = 'tm_psum_P2', reg_addr0 = tid, reg_addr1 = P2, condition = 'P2 > imm0')
+    event_trigger(packet_type = 'tm_psum_P3', reg_addr0 = tid, reg_addr1 = P3, condition = 'P3 > imm0')
+unit_end()

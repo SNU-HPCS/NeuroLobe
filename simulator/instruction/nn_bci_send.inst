@@ -1,2 +1,0 @@
-alui_comp(func_type = 'add', reg_addr1 = 'timestep', immediate = 1, reg_addr2 = 'timestep')
-increment_pos()

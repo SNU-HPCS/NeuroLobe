@@ -1,0 +1,33 @@
+[general]
+# mode can be training / inference
+mode              = inference
+num_workers       = 24
+data_name         = Neuropixels-1600_1041_10s
+dataset           = ./data/Neuropixels-1600_1041_10s_recordings.h5
+
+sampling_rate     = 20000
+chunk_size        = 100
+result_dir        = ../../dataset/
+sort_result_dir   = ./sort_result/
+
+[detection]
+sign_peaks      = -1
+detect_threshold = 6
+
+[training]
+# sparsify cluster
+sparsify        = 0.0
+spatial_whitening = True 
+# radius_en : enable pruning or not
+radius_en       = True
+radius          = 250 
+
+[inference]
+real_time       = True
+spatial_sparse  = True
+valid_multiple      = True
+duration        = 10000
+
+[result]
+snr_threshold   = 8
+# 8 is default (referenced from Spikeforest)

@@ -84,6 +84,7 @@ class PC:
         self.debug_module = self.core.debug_module
         self.isa_ctrl = self.core.isa_ctrl
         self.processingEvent = self.core.processingEvent
+        self.inst_list_raw = inst_list
 
         # load architectural states
         # print(table_key_list)

@@ -1,11 +1,3 @@
-# import Task
-# from ProcessGraph import PC
-# import configparser
-# import pickle
-# import GlobalVars as GV
-# import subprocess
-# import time
-# import os
 import pickle
 import subprocess
 import sys
@@ -17,7 +9,9 @@ import os
 import shutil
 
 import numpy as np
-from task_compiler import total_tasks, save_task_config
+
+sys.path.append("./simulator")
+from sync_pattern import total_tasks, save_task_config
 
 # First, we should compile the task graph
 for task in total_tasks:
@@ -58,10 +52,12 @@ working_directory = os.getcwd() + "/" + config.get('path', 'runspace_path')
 if not os.path.exists(working_directory): os.makedirs(working_directory)
 origin = os.getcwd() + "/" + config.get('path', 'simulator_path')
 workload_path = os.getcwd() + "/" + config.get('path', 'workload_path')
-mapper_path = os.getcwd() + "/" + config.get('path', 'mapper_path')
 max_core_xy = ast.literal_eval(config.get('sim_params', 'max_core_xy'))
 max_core_x, max_core_y = max_core_xy # global
 cyc_period = config.get('sim_params', 'cyc_period')
+baseline = config.get('sim_params', 'baseline') == "True"
+optimize = config.get('sim_params', 'optimize') == "True"
+no_cascade = config.get('sim_params', 'no_cascade') == "True"
 external = config.get('sim_params', 'external') == "True"
 gpmetis = config.get('sim_params', 'gpmetis') == "True"
 highest_priority = config.get('sim_params', 'highest_priority')
@@ -109,6 +105,7 @@ for param in zip(workload_name_list, ufactor_list, dt_list, latency_list, task_t
     mapping_name = "mapping_" + str(num_internal) + "_" + str(used_core_num)
 
     mapping_name += ".npz"
+    mapper_path = os.getcwd() + "/utils/"
     mapping_folder_name = mapper_path + workload_name
     mapping_file_name = mapping_folder_name + "/" + mapping_name
     mapping_file_name_list.append(mapping_file_name)
@@ -162,7 +159,6 @@ for param in zip(workload_name_list, ufactor_list, dt_list, latency_list, task_t
                 # node_list[used_core_num + external_core_idx] = []
                 target_core = list(range(external_core_idx, total_core_num, max_core_x))
 
-                # FIXME: need to fixe Parse.py as well
                 for core_idx in range(used_core_num):
                     if cores[core_idx] in target_core:
                         if (total_core_num + external_core_idx) not in node_list.keys():
@@ -171,25 +167,6 @@ for param in zip(workload_name_list, ufactor_list, dt_list, latency_list, task_t
                             if i < num_external:
                                 node_list[total_core_num + external_core_idx].append(num_internal + i)
 
-        # for core in range(used_core_num):
-        #     node_list[core] = []
-
-        # for neu in range(num_internal):
-        #     node_list[neu % used_core_num].append(neu)
-
-        # # Set the external list
-        # if external:
-        #     for external_core_idx in range(max_core_x):
-        #         # node_list[used_core_num + external_core_idx] = []
-        #         target_core = list(range(external_core_idx, total_core_num, max_core_x))
-
-        #         # FIXME: need to fixe Parse.py as well
-        #         for core_idx in range(used_core_num):
-        #             if cores[core_idx] in target_core:
-        #                 node_list[used_core_num + external_core_idx] = []
-        #                 for i in node_list[core_idx]:
-        #                     if i < num_external:
-        #                         node_list[used_core_num + external_core_idx].append(num_internal + i)
         else:
             # single-core
             node_list[0] += [num_internal + i for i in range(num_external)]
@@ -251,6 +228,9 @@ argument = " --workload_path " + workload_name + \
            " --task_to_core " + str(task_to_core) + \
            " --p_unit " + str(p_unit_list) + \
            " --use_partial " + use_partial + \
+           " --no_cascade " + str(no_cascade) + \
+           " --baseline " + str(baseline) + \
+           " --optimize " + str(optimize) + \
            " --external " + str(external) + \
            " --working_directory " + str(working_directory) + \
            " --simulator_path " + str(origin) + \

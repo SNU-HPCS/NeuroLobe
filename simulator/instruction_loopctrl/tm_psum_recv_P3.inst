@@ -1,0 +1,15 @@
+loop_corr(memory_name = 'partial_template_to_template')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['partial_template_to_template', 'lid'])
+
+    R3 = memory(access_type = 'read', mem_type = hist_mem['R3', dst_id])
+    R3 = alu_comp(R3 + event_data)
+    memory(access_type = 'write', mem_type = hist_mem['R3', dst_id], reg_data = R3)
+
+    S3 = memory(access_type = 'read', mem_type = state_mem['template_sums_S3', dst_id])
+    S3 = alu_comp(S3 + event_data)
+    memory(access_type = 'write', mem_type = state_mem['template_sums_S3', dst_id], reg_data = S3)
+
+    #rmw_op(func_type = 'add', access_type = 'htoh', local_mem = state_mem['R3', dst_id], reg_data = event_data)
+    #rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['template_sums_S3', dst_id], reg_data = event_data)
+corr_end()
+

@@ -1,0 +1,18 @@
+#nid = loop_unit(unit_name = 'neuron')
+#    history = memory(access_type = 'read', mem_type = hist_mem['history', nid])
+#    history_sq = alu_comp(history * history)
+#    rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['neuron_spikes', nid], reg_data = history_sq)
+#    event_trigger(packet_type = 'pc_spike', reg_addr0 = nid, reg_addr1 = history, condition = 'history > imm0')
+#unit_end()
+nid = loop_unit(unit_name = 'neuron')
+    history = memory(access_type = 'read', mem_type = hist_mem['history', nid])
+    history_sq = alu_comp(history * history)
+
+    
+    spikes = memory(access_type = 'read', mem_type = state_mem['neuron_spikes', nid])
+    spikes = alu_comp(history_sq + spikes)
+    memory(access_type = 'write', mem_type = state_mem['neuron_spikes', nid], reg_data = spikes)
+
+    #rmw_op(func_type = 'add', access_type = 'stos', local_mem = state_mem['neuron_spikes', nid], reg_data = history_sq)
+    event_trigger(packet_type = 'pc_spike', reg_addr0 = nid, reg_addr1 = history, condition = 'history > imm0')
+unit_end()

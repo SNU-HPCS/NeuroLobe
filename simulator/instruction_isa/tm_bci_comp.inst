@@ -1,0 +1,9 @@
+nid = loop_unit(unit_name = neuron)
+    i_n = memory(access_type = 'read', mem_type = state_mem['neuron_i_n', nid])
+IF PARTIAL
+    event_trigger(packet_type = 'tm_spike', reg_addr0 = nid, reg_addr1 = i_n, condition = 'i_n != imm0')
+ENDIF
+IF NO_PARTIAL
+    event_trigger(packet_type = 'tm_spike_direct', reg_addr0 = nid, reg_addr1 = i_n, condition = 'i_n != imm0')
+ENDIF
+unit_end()

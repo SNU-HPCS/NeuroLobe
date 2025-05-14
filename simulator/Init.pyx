@@ -633,6 +633,7 @@ cpdef init_corr_mem (conn_filename, mapping_filename, cores, gtask_id):
                 # Retrieve the source core and 
                 # the its lid in the source core
                 (src_core_id, src_lid) = tid_to_core[src_type_id][src_id]
+                src_gid = GV.lid_to_gid[gtask_id][src_core_id][src_type_id][src_lid]
 
                 # Use the data to generate the routing table
                 # route_mem_ind => indicates the current size allocated to the route_mem
@@ -664,7 +665,12 @@ cpdef init_corr_mem (conn_filename, mapping_filename, cores, gtask_id):
                     entry = conn[3]
 
                     if max_src <= src: max_src = src
-                    else: 
+                    else:
+                        # HINT: src_type_id should be in-order in bci_processor_api.py
+                        print("src_type_id", src_type_id)
+                        print("dst_type_id", dst_type_id)
+                        print("arr_ind", arr_ind)
+                        print("len conn list", len(conn_list))
                         print(max_src, src)
                         assert(0)
                     if not src == src_id: break
@@ -690,10 +696,11 @@ cpdef init_corr_mem (conn_filename, mapping_filename, cores, gtask_id):
                                        GV.loop_info[gtask_id][conn_name]['align'])
                     
                     # Set the pid for the connected destination core
-                    if src not in pid_to_gid[dst_core_id][src_type_id][dst_type_id]:
-                        gid_to_pid[dst_core_id][src_type_id][dst_type_id][src] = \
+                    if src_gid not in pid_to_gid[dst_core_id][src_type_id][dst_type_id]:
+
+                        gid_to_pid[dst_core_id][src_type_id][dst_type_id][src_gid] = \
                             len(pid_to_gid[dst_core_id][src_type_id][dst_type_id])
-                        pid_to_gid[dst_core_id][src_type_id][dst_type_id].append(src)
+                        pid_to_gid[dst_core_id][src_type_id][dst_type_id].append(src_gid)
 
                     # Track the destination cores connected to the source
                     if not dst_core_id in dst_core_set:
@@ -837,6 +844,16 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
     init_ack_num_mem(initial_ack_num_mem, 5, gtask_id)
     init_ack_stack_mem(initial_ack_stack_mem, 5, gtask_id)
 
+    # The cascaded sync here (depth 6)
+    init_ack_left_mem(initial_ack_left_mem, 6, gtask_id)
+    init_ack_num_mem(initial_ack_num_mem, 6, gtask_id)
+    init_ack_stack_mem(initial_ack_stack_mem, 6, gtask_id)
+
+    # The cascaded sync here (depth 7)
+    init_ack_left_mem(initial_ack_left_mem, 7, gtask_id)
+    init_ack_num_mem(initial_ack_num_mem, 7, gtask_id)
+    init_ack_stack_mem(initial_ack_stack_mem, 7, gtask_id)
+
     if task_type == 'snn':
 
         refr_list = [state_dict['neuron_state'][gid]['refr'] for gid in range(len(state_dict['neuron_state']))]
@@ -847,24 +864,24 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
         decay_g_list = [state_dict['neuron_state'][gid]['decay_g'] for gid in range(len(state_dict['neuron_state']))]
         threshold_list = [state_dict['neuron_state'][gid]['threshold'] for gid in range(len(state_dict['neuron_state']))]
 
-        init_state_mem(initial_state_mem, 'neuron states refr', 0, refr_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states I_t', 0, I_t_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states v_t', 0, v_t_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states decay_v', 0, decay_v_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states g_t', 0, g_t_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states decay_g', 0, decay_g_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states threshold', 0, threshold_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_refr', 0, refr_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_I_t', 0, I_t_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_v_t', 0, v_t_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_decay_v', 0, decay_v_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_g_t', 0, g_t_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_decay_g', 0, decay_g_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_threshold', 0, threshold_list, False, gtask_id)
 
         if GV.sim_params['use_partial'][gtask_id]:
-            init_hist_mem(initial_hist_mem, 0, 'weight accum', 0, 0, gtask_id)
+            init_hist_mem(initial_hist_mem, 0, 'weight_accum', 0, 0, gtask_id, True, bit_prec_dict.get('weight accum', 16))
 
         initial_hist_entry = [0 for _ in state_dict['neuron_state']]
         if GV.sim_params['use_partial'][gtask_id]:
-            init_hist_mem(initial_hist_mem, 256, 'spike weight accum', 3, 0, gtask_id, True, bit_prec_dict.get('spike weight accum', 16))
-            init_hist_mem(initial_hist_mem, 256, 'ext weight accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('ext weight accum', 16))
+            init_hist_mem(initial_hist_mem, 256, 'spike_weight_accum', 3, 0, gtask_id, True, bit_prec_dict.get('spike weight accum', 16))
+            init_hist_mem(initial_hist_mem, 256, 'ext_weight_accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('ext weight accum', 16))
         else:
             #init_hist_mem(initial_hist_mem, 256, 'weight accum', 0, 0, gtask_id)
-            init_hist_mem(initial_hist_mem, 256, 'weight accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('weight accum', 16))
+            init_hist_mem(initial_hist_mem, 256, 'weight_accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('weight accum', 16))
 
     elif task_type == 'ann':
         refr_list = [state_dict['neuron_state'][gid]['refr'] for gid in range(len(state_dict['neuron_state']))]
@@ -873,19 +890,19 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
 
         #init_hist_mem(initial_hist_mem, 0, 'neuron states refr', 0, refr_list, gtask_id, False)
         #init_hist_mem(initial_hist_mem, 0, 'neuron states I_t', 0, I_t_list, gtask_id, False)
-        init_state_mem(initial_state_mem, 'neuron states refr', 0, refr_list, False, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron states I_t', 0, I_t_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_refr', 0, refr_list, False, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_states_I_t', 0, I_t_list, False, gtask_id)
         # init_hist_mem(initial_hist_mem, 0, 'neuron states h_t', 0, h_t_list, gtask_id, False)
         
         initial_hist_entry = [0 for _ in state_dict['neuron_state']]
         if GV.sim_params['use_partial'][gtask_id]:
-            init_hist_mem(initial_hist_mem, 0, 'weight accum', 0, 0, gtask_id)
-            init_hist_mem(initial_hist_mem, 1, 'ext weight accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('ext weight accum', 16))
-            init_hist_mem(initial_hist_mem, 1, 'spike weight accum', 3, 0, gtask_id, True, bit_prec_dict.get('spike weight accum', 16))
+            init_hist_mem(initial_hist_mem, 0, 'weight_accum', 0, 0, gtask_id, True, bit_prec_dict.get('weight accum', 16))
+            init_hist_mem(initial_hist_mem, 1, 'ext_weight_accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('ext weight accum', 16))
+            init_hist_mem(initial_hist_mem, 1, 'spike_weight_accum', 3, 0, gtask_id, True, bit_prec_dict.get('spike weight accum', 16))
         else:
-            init_hist_mem(initial_hist_mem, 1, 'weight accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('weight accum', 16))
+            init_hist_mem(initial_hist_mem, 1, 'weight_accum', 0, initial_hist_entry, gtask_id, False, bit_prec_dict.get('weight accum', 16))
 
-        init_hist_mem(initial_hist_mem, state_dict['bin_width'] - 1, 'bci neuron history', 1, 0, gtask_id, True, bit_prec_dict.get('bci neuron history', 16))
+        init_hist_mem(initial_hist_mem, state_dict['bin_width'] - 1, 'bci_neuron_history', 1, 0, gtask_id, True, bit_prec_dict.get('bci neuron history', 16))
         init_hist_mem(initial_hist_mem, 0, 'bci', 1, 0, gtask_id, True, bit_prec_dict.get('bci', 16))
 
 
@@ -897,11 +914,16 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
         #init_hist_mem(initial_hist_mem, 0, 'partial_distance', 1, 0, gtask_id)
         #init_hist_mem(initial_hist_mem, 0, 'template_occupied', 1, False, gtask_id)
 
-        init_state_mem(initial_state_mem, 'sps min', 1, sps_data[:,0,0], False, gtask_id)
-        init_state_mem(initial_state_mem, 'sps max', 1, sps_data[:,1,0], False, gtask_id)
-        init_state_mem(initial_state_mem, 'partial_distance', 1, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'sps_min', 1, sps_data[:,0,0], False, gtask_id)
+        init_state_mem(initial_state_mem, 'sps_max', 1, sps_data[:,1,0], False, gtask_id)
+        init_state_mem(initial_state_mem, 'distance', 1, 0, True, gtask_id)
         init_state_mem(initial_state_mem, 'template_occupied', 1, 0, True, gtask_id)
         init_state_mem(initial_state_mem, 'thresholds', 0, -state_dict['thresholds'], False, gtask_id)
+
+        # Set partial
+        if GV.sim_params['no_cascade']:
+            init_state_mem(initial_state_mem, 'partial_distance', (1, 0), 0, True, gtask_id)
+            init_state_mem(initial_state_mem, 'partial_source', (1, 0), 0, True, gtask_id)
         
         #init_stack_mem(initial_stack_mem, 'template', 1, gtask_id)
 
@@ -909,26 +931,29 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
 
     elif task_type == 'tm':
         #init_hist_mem(initial_hist_mem, 0, 'neuron i_n', 0, 0, gtask_id)
-        init_state_mem(initial_state_mem, 'neuron i_n', 0, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_i_n', 0, 0, True, gtask_id)
         temp_consts = np.array(state_dict['temp_consts'])
-        init_state_mem(initial_state_mem, 'template constants C1', 1, temp_consts[:,0], False, gtask_id)
-        init_state_mem(initial_state_mem, 'template constants C2', 1, temp_consts[:,1], False, gtask_id)
-        init_state_mem(initial_state_mem, 'template constants C3', 1, temp_consts[:,2], False, gtask_id)
+        init_state_mem(initial_state_mem, 'template_constants_C1', 1, temp_consts[:,0], False, gtask_id)
+        init_state_mem(initial_state_mem, 'template_constants_C2', 1, temp_consts[:,1], False, gtask_id)
+        init_state_mem(initial_state_mem, 'template_constants_C3', 1, temp_consts[:,2], False, gtask_id)
         
         #init_hist_mem(initial_hist_mem, 0, 'template sums S1', 1, 0, gtask_id)
         #init_hist_mem(initial_hist_mem, 0, 'template sums S2', 1, 0, gtask_id)
         #init_hist_mem(initial_hist_mem, 0, 'template sums S3', 1, 0, gtask_id)
         
-        init_state_mem(initial_state_mem, 'template sums S1', 1, 0, True, gtask_id)
-        init_state_mem(initial_state_mem, 'template sums S2', 1, 0, True, gtask_id)
-        init_state_mem(initial_state_mem, 'template sums S3', 1, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'template_sums_S1', 1, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'template_sums_S2', 1, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'template_sums_S3', 1, 0, True, gtask_id)
 
         if GV.sim_params['use_partial'][gtask_id]:
             #init_hist_mem(initial_hist_mem, 0, 'template psums P2', 3, 0, gtask_id)
             #init_hist_mem(initial_hist_mem, 0, 'template psums P3', 3, 0, gtask_id)
-            init_state_mem(initial_state_mem, 'template psums P2', 3, 0, True, gtask_id)
-            init_state_mem(initial_state_mem, 'template psums P3', 3, 0, True, gtask_id)
+            init_state_mem(initial_state_mem, 'template_psums_P2', 3, 0, True, gtask_id)
+            init_state_mem(initial_state_mem, 'template_psums_P3', 3, 0, True, gtask_id)
 
+        if GV.sim_params['baseline'] and GV.sim_params['no_cascade']:
+            # emulate baseline neuromorphic with no cascade version
+            init_hist_mem(initial_hist_mem, 1, 'partial_P1', 2, 0, gtask_id, True, bit_prec_dict.get('P1', 16))
 
         temp_width = GV.sim_params['consts'][gtask_id]['n_t']
         init_hist_mem(initial_hist_mem, temp_width-1, 'R2', 1, 0, gtask_id, True, bit_prec_dict.get('R2', 16))
@@ -944,7 +969,7 @@ cpdef init_other_mem(state_filename, task_type, gtask_id):
         # corr_period = 100000
         
         init_hist_mem(initial_hist_mem, window, 'history', 0, 0, gtask_id, True, bit_prec_dict.get('history', 16))
-        init_state_mem(initial_state_mem, 'neuron spikes', 0, 0, True, gtask_id)
+        init_state_mem(initial_state_mem, 'neuron_spikes', 0, 0, True, gtask_id)
     else:
         assert(0)
 

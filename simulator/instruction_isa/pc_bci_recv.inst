@@ -1,0 +1,7 @@
+loop_corr(memory_name = 'bci_to_neuron', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['bci_to_neuron', 'lid'])
+
+    history = memory(access_type = 'read', mem_type = hist_mem['history', dst_id])
+    history = alu_comp(history + event_data)
+    memory(access_type = 'write', mem_type = hist_mem['history', dst_id], reg_data = history)
+corr_end()

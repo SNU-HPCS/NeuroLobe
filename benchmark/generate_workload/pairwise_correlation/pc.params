@@ -1,0 +1,19 @@
+# set necessary params here
+
+[general]
+data_path       = ../spike_generator/spiking_data/spikes_RTT_max.npz
+data_mode       = RTT_max
+result_dir     = ../../dataset/
+duration        = 10000
+sampling_rate   = 1000
+
+[pairwise_correlation]
+# in msec
+bin_width       = 1
+window          = 20
+corr_period     = 100
+target_cell_num = 1600
+
+[network_config]
+epsilon         = 0.1
+beta            = 1.0

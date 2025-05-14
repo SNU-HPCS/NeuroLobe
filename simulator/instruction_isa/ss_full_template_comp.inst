@@ -1,0 +1,12 @@
+loop_corr(memory_name = 'partial_electrode_to_electrode', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['partial_electrode_to_electrode', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['partial_electrode_to_electrode', 'delay'])
+    template = memory(access_type = 'read', mem_type = corr_mem['partial_electrode_to_electrode', 'template'])
+
+    # Accumulate the partial sum
+    bci = memory(access_type = 'read', mem_type = hist_mem['bci', dst_id, delay], no_loop_ctrl = True)
+    partial_sum = alu_comp(bci * template)
+
+    # Return data
+    event_trigger(packet_type = 'ss_accumulate', reg_addr0 = event_data, reg_addr1 = partial_sum)
+corr_end()

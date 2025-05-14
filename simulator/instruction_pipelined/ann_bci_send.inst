@@ -1,0 +1,7 @@
+timestep = alu_comp(timestep + imm1)
+increment_pos()
+
+nid = loop_unit(unit_name = bci_neuron)
+    bci_hist = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['bci_neuron_history', nid])
+    rmw_op(func_type = 'sub', access_type = 'htoh', local_mem = hist_mem['bci', nid], reg_data = bci_hist)
+unit_end()

@@ -114,7 +114,10 @@ parser.add_argument('--cyc_period', type=float, dest='cyc_period')
 parser.add_argument('--task_to_core', nargs='+', type=str, action='append', dest='task_to_core')
 parser.add_argument('--p_unit', nargs='+', type=str, action='append', dest='p_unit')
 parser.add_argument('--use_partial', nargs='+', type=int, dest='use_partial')
+parser.add_argument('--baseline', type=str, dest='baseline')
+parser.add_argument('--optimize', type=str, dest='optimize')
 
+parser.add_argument('--no_cascade', type=str, dest='no_cascade')
 parser.add_argument('--external', type=str, dest='external')
 parser.add_argument('--working_directory', type=str, dest='working_directory')
 parser.add_argument('--simulator_path', type=str, dest='simulator_path')
@@ -150,6 +153,10 @@ GV.sim_params['external'] = (args.external == 'True')
 # Save the working directory & simulator path
 GV.sim_params['working_directory'] = args.working_directory
 GV.sim_params['simulator_path'] = args.simulator_path
+
+GV.sim_params['baseline'] = (args.baseline == 'True')
+GV.sim_params['optimize'] = (args.optimize == 'True')
+GV.sim_params['no_cascade'] = (args.no_cascade == 'True')
 
 # Register file configuration
 GV.reg_event_size = 10
@@ -337,9 +344,6 @@ print("End saving memory footprint file")
 print("End Connection Initialization\n")
 sys.stdout.flush()
 
-# TODO
-# 1. save simulation params
-# 2. save initial architectural state
 simulator_executables_path = args.executable_path + "/simulator_executables"
 if not os.path.isdir(simulator_executables_path):
     os.mkdir(simulator_executables_path)
@@ -519,17 +523,17 @@ for gtask_id in range(GV.TOTAL_TASKS):
                 = saved_arch_state['hist_mem'][core_ind]
                 corr_mem[core_ind][list(corr_mem_offset[core_ind][ltask_id].values())[0] : list(corr_mem_offset[core_ind][ltask_id].values())[0] + len(saved_arch_state['corr_mem'][core_ind])] \
                 = saved_arch_state['corr_mem'][core_ind]
-                
+
                 for pos in saved_arch_state['hist_pos'][core_ind]:
                     if pos['task'] == -1:
                         break
                     assert(pos['task'] == 0)
                     hist_pos[core_ind][hist_task_translator[core_ind][ltask_id][pos['data']]] = {'val': pos['val'], 'task': ltask_id, 'data': pos['data']}
-        
+
         arch_state['initial_timestep'].append(saved_arch_state['initial_timestep'][0])
     else:
         arch_state['initial_timestep'].append(0)
-        
+
 ########## MEMORY LAYOUT INITIALIZE END #############
 arch_state['state_mem'] = state_mem
 arch_state['state_mem_offset'] = state_mem_offset
@@ -585,11 +589,23 @@ base_list_total = [[] for _ in range(GV.sim_params['used_core_num'])]
 bound_list_total = [[] for _ in range(GV.sim_params['used_core_num'])]
 inst_list_total = [[] for _ in range(GV.sim_params['used_core_num'])]
 
+# Check valid condition
+if GV.sim_params['baseline']:
+    assert(GV.sim_params['optimize'] == False)
+
 for core_ind in range(GV.sim_params['used_core_num']):
     for ltask_id in range(GV.NUM_SCHEDULED_TASKS[core_ind]):
         gtask_id = GV.ltask_to_gtask[core_ind][ltask_id]
+        #parsed_graph_inst = parse_inst_file('instruction_api/tm_bci_send.inst', gtask_id, core_ind)
+        #assert(0)
         for event_type in Task.get_task(gtask_id).event:
-            parsed_graph_inst = parse_inst_file('instruction/{}.inst'.format(event_type), gtask_id, core_ind)
+            if GV.sim_params['baseline']:
+                parsed_graph_inst = parse_inst_file('instruction_isa/{}.inst'.format(event_type), gtask_id, core_ind)
+            elif GV.sim_params['optimize']:
+                parsed_graph_inst = parse_inst_file('instruction_pipelined/{}.inst'.format(event_type), gtask_id, core_ind)
+            else:
+                parsed_graph_inst = parse_inst_file('instruction_loopctrl/{}.inst'.format(event_type), gtask_id, core_ind)
+            #parsed_graph_inst = parse_inst_file('instruction_api_loopctrl/{}.inst'.format(event_type), gtask_id, core_ind)
             table_key_list_total[core_ind].append((ltask_id, event_type))
             base = len(inst_list_total[core_ind])
             size = len(parsed_graph_inst)

@@ -1,0 +1,47 @@
+nid = loop_unit(unit_name = neuron)
+IF PARTIAL
+        ext_waccum = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['ext_weight_accum', nid])
+        waccum = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['weight_accum', nid])
+        waccum = alu_comp(ext_waccum + waccum)
+ENDIF
+IF NO_PARTIAL
+        waccum = rmw_op(func_type = 'pop', access_type = 'htoh', local_mem = hist_mem['weight_accum', nid])
+ENDIF
+    
+    refr = memory(access_type = 'read', mem_type = state_mem['neuron_states_refr', nid])
+    if_begin(refr == imm0)
+        I_t = memory(access_type = 'read', mem_type = state_mem['neuron_states_I_t', nid])
+        waccum = alu_comp(waccum + I_t)
+    if_end()
+    g_t = memory(access_type = 'read', mem_type = state_mem['neuron_states_g_t', nid])
+    g_t = alu_comp(waccum + g_t)
+    if_begin(refr == imm0)
+        v_t = memory(access_type = 'read', mem_type = state_mem['neuron_states_v_t', nid])
+        decay_v = memory(access_type = 'read', mem_type = state_mem['neuron_states_decay_v', nid])
+        
+        v_t = alu_comp(decay_v * v_t)
+        v_t = alu_comp(v_t + g_t)
+
+        threshold = memory(access_type = 'read', mem_type = state_mem['neuron_states_threshold', nid])
+        debug_func(func_type = self.debug_module.save_snn_state, module = self.debug_module, reg_addr0 = v_t, reg_addr1 = timestep, reg_addr2 = nid)
+        spike = alu_comp(v_t > threshold)
+IF NO_PARTIAL
+            event_trigger(packet_type = 'nn_spike_direct', reg_addr0 = nid, reg_addr1 = spike, condition = 'spike != imm0')
+ENDIF
+IF PARTIAL
+            event_trigger(packet_type = 'nn_spike', reg_addr0 = nid, reg_addr1 = spike, condition = 'spike != imm0')
+ENDIF
+        if_begin(spike != imm0)
+            v_t = set_register(immediate = imm0)
+        if_end()
+        memory(access_type = 'write', mem_type = state_mem['neuron_states_v_t', nid], reg_data = v_t)
+    if_end()
+    if_begin(refr > imm0)
+        refr = alu_comp(refr - imm1)
+        memory(access_type = 'write', mem_type = state_mem['neuron_states_refr', nid], reg_data = refr)
+    if_end()
+
+    decay_g = memory(access_type = 'read', mem_type = state_mem['neuron_states_decay_g', nid])
+    g_t = alu_comp(g_t * decay_g)
+    memory(access_type = 'write', mem_type = state_mem['neuron_states_g_t', nid], reg_data = g_t)
+unit_end()

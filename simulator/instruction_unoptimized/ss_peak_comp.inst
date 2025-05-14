@@ -1,7 +1,0 @@
-set_register(reg_addr1 = 25, immediate = 1)
-loop_corr(memory_name = 'electrode_to_template', reg_addr1 = 21)
-    corr_mem(memory_name = 'electrode_to_template', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
-    state_mem(memory_name = 'template_occupied', access_type = 'read', reg_addr1 = 22, reg_addr2 = 23)
-    state_mem(memory_name = 'template_occupied', access_type = 'write', reg_addr1 = 22, reg_addr2 = 25)
-    event_trigger(packet_type = 'ss_template', reg_addr1 = 22, reg_addr2 = 22, func_type = 'eq', reg_addr3 = 23, immediate = 0)
-corr_end()

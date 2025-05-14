@@ -1,0 +1,22 @@
+# set necessary params here
+
+[general]
+spike_data      = ../spike_generator/spiking_data/spikes_BUMP_max.npz
+template_data   = ../spike_generator/spiking_data/templates_BUMP.npz
+data_mode       = BUMP_max
+result_dir     = ../../dataset/
+
+# in timestep
+duration        = 10000
+sampling_rate   = 1000
+test_to_use     = all
+
+[template_generation]
+# in sec
+template_window = 5
+
+[template_matching]
+# in msec
+bin_width       = 250
+temp_to_use     = all
+target_cell_num = 100

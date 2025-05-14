@@ -1,0 +1,81 @@
+Metadata-Version: 2.4
+Name: spikeinterface
+Version: 0.98.0.dev0
+Summary: Python toolkit for analysis, visualization, and comparison of spike sorting output
+Author-email: Alessio Buccino <alessiop.buccino@gmail.com>, Samuel Garcia <sam.garcia.die@gmail.com>
+Project-URL: homepage, https://github.com/SpikeInterface/spikeinterface
+Project-URL: repository, https://github.com/SpikeInterface/spikeinterface
+Project-URL: documentation, https://spikeinterface.readthedocs.io/
+Project-URL: changelog, https://spikeinterface.readthedocs.io/en/latest/whatisnew.html
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Science/Research
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: OS Independent
+Requires-Python: <4.0,>=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: neo>=0.11.1
+Requires-Dist: joblib
+Requires-Dist: threadpoolctl
+Requires-Dist: tqdm
+Requires-Dist: probeinterface>=0.2.16
+Provides-Extra: extractors
+Requires-Dist: MEArec>=1.8; extra == "extractors"
+Requires-Dist: pynwb>=2.3.0; extra == "extractors"
+Requires-Dist: pyedflib>=0.1.30; extra == "extractors"
+Requires-Dist: sonpy; python_version < "3.10" and extra == "extractors"
+Requires-Dist: lxml; extra == "extractors"
+Requires-Dist: scipy; extra == "extractors"
+Requires-Dist: ONE-api>=1.19.1; extra == "extractors"
+Requires-Dist: ibllib>=2.21.0; extra == "extractors"
+Provides-Extra: streaming-extractors
+Requires-Dist: ONE-api>=1.19.1; extra == "streaming-extractors"
+Requires-Dist: ibllib>=2.21.0; extra == "streaming-extractors"
+Requires-Dist: fsspec; extra == "streaming-extractors"
+Requires-Dist: aiohttp; extra == "streaming-extractors"
+Requires-Dist: requests; extra == "streaming-extractors"
+Requires-Dist: pynwb>=2.3.0; extra == "streaming-extractors"
+Provides-Extra: full
+Requires-Dist: zarr; extra == "full"
+Requires-Dist: h5py; extra == "full"
+Requires-Dist: pandas; extra == "full"
+Requires-Dist: xarray; extra == "full"
+Requires-Dist: scipy; extra == "full"
+Requires-Dist: scikit-learn; extra == "full"
+Requires-Dist: networkx; extra == "full"
+Requires-Dist: distinctipy; extra == "full"
+Requires-Dist: matplotlib; extra == "full"
+Requires-Dist: cuda-python; sys_platform != "darwin" and extra == "full"
+Requires-Dist: numba; extra == "full"
+Provides-Extra: widgets
+Requires-Dist: matplotlib; extra == "widgets"
+Requires-Dist: ipympl; extra == "widgets"
+Requires-Dist: ipywidgets; extra == "widgets"
+Requires-Dist: sortingview>=0.11.0; extra == "widgets"
+Requires-Dist: figurl-jupyter; extra == "widgets"
+Provides-Extra: test-core
+Requires-Dist: pytest; extra == "test-core"
+Requires-Dist: zarr; extra == "test-core"
+Requires-Dist: psutil; extra == "test-core"
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Requires-Dist: zarr; extra == "test"
+Requires-Dist: xarray; extra == "test"
+Requires-Dist: huggingface_hub; extra == "test"
+Requires-Dist: numpy<1.24; extra == "test"
+Requires-Dist: numba; extra == "test"
+Requires-Dist: hdbscan; extra == "test"
+Requires-Dist: sortingview; extra == "test"
+Requires-Dist: datalad==0.16.2; extra == "test"
+Requires-Dist: tridesclous>=1.6.6.1; extra == "test"
+Requires-Dist: pymde; extra == "test"
+Requires-Dist: torch; extra == "test"
+Requires-Dist: pynndescent; extra == "test"
+Requires-Dist: probeinterface@ git+https://github.com/SpikeInterface/probeinterface.git ; extra == "test"
+Requires-Dist: neo@ git+https://github.com/NeuralEnsemble/python-neo.git ; extra == "test"
+Dynamic: license-file

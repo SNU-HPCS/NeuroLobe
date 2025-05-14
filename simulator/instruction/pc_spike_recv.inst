@@ -1,7 +1,0 @@
-pipelined_loop_corr(memory_name = 'neuron_to_neuron', reg_addr1 = 21)
-    corr_mem(memory_name = 'neuron_to_neuron', data_type = 'lid', access_type = 'read', reg_addr1 = 22)
-    pipelined_loop_corr(memory_name = 'neuron_to_neuron', func_type = 'inner', reg_addr1 = 25, const_name = 'window', forward_order = False, include_ts = True)
-        rmw_op(func_type = 'mac', access_type = 'htoc', src_mem = 'history', dst_mem = 'neuron_to_neuron', data_type = 'partial correlation', reg_addr1 = 22, reg_addr2 = 25, reg_addr3 = 1)
-    corr_end()
-corr_end()
-

@@ -1,0 +1,196 @@
+Metadata-Version: 2.4
+Name: neo
+Version: 0.13.0.dev0
+Summary: Neo is a package for representing electrophysiology data in Python, together with support for reading a wide range of neurophysiology file formats
+Author: Neo authors and contributors
+License: BSD 3-Clause License
+Project-URL: homepage, https://neuralensemble.org/neo
+Project-URL: documentation, http://neo.readthedocs.io/
+Project-URL: repository, https://github.com/NeuralEnsemble/python-neo
+Project-URL: download, http://pypi.python.org/pypi/neo
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Science/Research
+Classifier: Natural Language :: English
+Classifier: Topic :: Scientific/Engineering
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+License-File: AUTHORS
+Requires-Dist: packaging
+Requires-Dist: numpy>=1.19.5
+Requires-Dist: quantities>=0.14.1
+Provides-Extra: iocache
+Requires-Dist: joblib>=1.0.0; extra == "iocache"
+Provides-Extra: test
+Requires-Dist: dhn_med_py>=1.0.0; extra == "test"
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Requires-Dist: scipy>=1.0.0; extra == "test"
+Requires-Dist: pyedflib; extra == "test"
+Requires-Dist: h5py; extra == "test"
+Requires-Dist: igor2; extra == "test"
+Requires-Dist: klusta; extra == "test"
+Requires-Dist: tqdm; extra == "test"
+Requires-Dist: nixio; extra == "test"
+Requires-Dist: matplotlib; extra == "test"
+Requires-Dist: ipython; extra == "test"
+Requires-Dist: joblib>=1.0.0; extra == "test"
+Requires-Dist: coverage; extra == "test"
+Requires-Dist: coveralls; extra == "test"
+Requires-Dist: pillow; extra == "test"
+Requires-Dist: sonpy; extra == "test"
+Requires-Dist: pynwb; extra == "test"
+Requires-Dist: probeinterface; extra == "test"
+Requires-Dist: zugbruecke>=0.2; extra == "test"
+Requires-Dist: wenv; extra == "test"
+Provides-Extra: docs
+Requires-Dist: docutils<0.18; extra == "docs"
+Requires-Dist: sphinx-inline-tabs; extra == "docs"
+Requires-Dist: sphinx-gallery; extra == "docs"
+Requires-Dist: pydata-sphinx-theme; extra == "docs"
+Requires-Dist: sphinx-design; extra == "docs"
+Requires-Dist: ipython; extra == "docs"
+Requires-Dist: matplotlib; extra == "docs"
+Requires-Dist: nixio; extra == "docs"
+Requires-Dist: pynwb; extra == "docs"
+Provides-Extra: dev
+Requires-Dist: build; extra == "dev"
+Requires-Dist: twine; extra == "dev"
+Provides-Extra: igorproio
+Requires-Dist: igor2; extra == "igorproio"
+Provides-Extra: kwikio
+Requires-Dist: klusta; extra == "kwikio"
+Provides-Extra: neomatlabio
+Requires-Dist: scipy>=1.0.0; extra == "neomatlabio"
+Provides-Extra: nixio
+Requires-Dist: nixio>=1.5.0; extra == "nixio"
+Provides-Extra: stimfitio
+Requires-Dist: stfio; extra == "stimfitio"
+Provides-Extra: tiffio
+Requires-Dist: pillow; extra == "tiffio"
+Provides-Extra: edf
+Requires-Dist: pyedflib; extra == "edf"
+Provides-Extra: ced
+Requires-Dist: sonpy; extra == "ced"
+Provides-Extra: nwb
+Requires-Dist: pynwb; extra == "nwb"
+Provides-Extra: maxwell
+Requires-Dist: h5py; extra == "maxwell"
+Provides-Extra: biocam
+Requires-Dist: h5py; extra == "biocam"
+Provides-Extra: med
+Requires-Dist: dhn_med_py>=1.0.0; extra == "med"
+Provides-Extra: plexon2
+Requires-Dist: zugbruecke>=0.2; sys_platform != "win32" and extra == "plexon2"
+Requires-Dist: wenv; sys_platform != "win32" and extra == "plexon2"
+Provides-Extra: all
+Requires-Dist: coverage; extra == "all"
+Requires-Dist: coveralls; extra == "all"
+Requires-Dist: dhn_med_py>=1.0.0; extra == "all"
+Requires-Dist: h5py; extra == "all"
+Requires-Dist: igor2; extra == "all"
+Requires-Dist: ipython; extra == "all"
+Requires-Dist: joblib>=1.0.0; extra == "all"
+Requires-Dist: klusta; extra == "all"
+Requires-Dist: matplotlib; extra == "all"
+Requires-Dist: nixio>=1.5.0; extra == "all"
+Requires-Dist: pillow; extra == "all"
+Requires-Dist: probeinterface; extra == "all"
+Requires-Dist: pyedflib; extra == "all"
+Requires-Dist: pynwb; extra == "all"
+Requires-Dist: pytest; extra == "all"
+Requires-Dist: pytest-cov; extra == "all"
+Requires-Dist: scipy>=1.0.0; extra == "all"
+Requires-Dist: sonpy; extra == "all"
+Requires-Dist: tqdm; extra == "all"
+Requires-Dist: wenv; sys_platform != "win32" and extra == "all"
+Requires-Dist: zugbruecke>=0.2; sys_platform != "win32" and extra == "all"
+Dynamic: license-file
+
+===
+Neo
+===
+
+Neo is a Python package for working with electrophysiology data in Python, together
+with support for reading a wide range of neurophysiology file formats, including
+Spike2, NeuroExplorer, AlphaOmega, Axon, Blackrock, Plexon, Tdt, and support for
+writing to a subset of these formats plus non-proprietary formats including HDF5.
+
+The goal of Neo is to improve interoperability between Python tools for
+analyzing, visualizing and generating electrophysiology data by providing a common,
+shared object model. In order to be as lightweight a dependency as possible,
+Neo is deliberately limited to represention of data, with no functions for data
+analysis or visualization.
+
+Neo is used by a number of other software tools, including
+SpykeViewer_ (data analysis and visualization), Elephant_ (data analysis),
+the G-node_ suite (databasing), PyNN_ (simulations), tridesclous_ (spike sorting)
+and ephyviewer_ (data visualization).
+OpenElectrophy_ (data analysis and visualization) uses an older version of neo.
+
+Neo implements a hierarchical data model well adapted to intracellular and
+extracellular electrophysiology and EEG data with support for multi-electrodes
+(for example tetrodes). Neo's data objects build on the quantities package,
+which in turn builds on NumPy by adding support for physical dimensions. Thus
+Neo objects behave just like normal NumPy arrays, but with additional metadata,
+checks for dimensional consistency and automatic unit conversion.
+
+A project with similar aims but for neuroimaging file formats is `NiBabel`_.
+
+Code status
+-----------
+
+.. image:: https://github.com/NeuralEnsemble/python-neo/actions/workflows/core-test.yml/badge.svg?event=push&branch=master
+   :target: https://github.com/NeuralEnsemble/python-neo/actions?query=event%3Apush+branch%3Amaster
+   :alt: Core Test Status (Github Actions)
+.. image:: https://github.com/NeuralEnsemble/python-neo/actions/workflows/io-test.yml/badge.svg?event=push&branch=master
+   :target: https://github.com/NeuralEnsemble/python-neo/actions?query=event%3Apush+branch%3Amaster
+   :alt: IO Test Status (Github Actions)
+.. image:: https://coveralls.io/repos/NeuralEnsemble/python-neo/badge.png
+   :target: https://coveralls.io/r/NeuralEnsemble/python-neo
+   :alt: Unit Test Coverage
+
+More information
+----------------
+
+- Home page: http://neuralensemble.org/neo
+- Mailing list: http://neuralensemble.org/community
+- Documentation: http://neo.readthedocs.io/
+- Bug reports: https://github.com/NeuralEnsemble/python-neo/issues
+
+For installation instructions, see doc/source/install.rst
+
+To cite Neo in publications, see CITATION.txt
+
+:copyright: Copyright 2010-2022 by the Neo team, see doc/source/authors.rst.
+:license: 3-Clause Revised BSD License, see LICENSE.txt for details.
+
+Funding
+-------
+
+Development of Neo has been partially funded by the European Union Sixth Framework Program (FP6) under
+grant agreement FETPI-015879 (FACETS), by the European Union Seventh Framework Program (FP7/2007­-2013)
+under grant agreements no. 269921 (BrainScaleS) and no. 604102 (HBP),
+and by the European Union’s Horizon 2020 Framework Programme for
+Research and Innovation under the Specific Grant Agreements No. 720270 (Human Brain Project SGA1),
+No. 785907 (Human Brain Project SGA2) and No. 945539 (Human Brain Project SGA3).
+
+.. _OpenElectrophy: https://github.com/OpenElectrophy/OpenElectrophy
+.. _Elephant: http://neuralensemble.org/elephant
+.. _G-node: http://www.g-node.org/
+.. _Neuroshare: http://neuroshare.org/
+.. _SpykeViewer: https://spyke-viewer.readthedocs.org/en/latest/
+.. _NiBabel: http://nipy.sourceforge.net/nibabel/
+.. _PyNN: http://neuralensemble.org/PyNN
+.. _quantities: http://pypi.python.org/pypi/quantities
+.. _`NeuralEnsemble mailing list`: http://neuralensemble.org/community
+.. _`issue tracker`: https://github.c
+.. _tridesclous: https://github.com/tridesclous/tridesclous
+.. _ephyviewer: https://github.com/NeuralEnsemble/ephyviewer

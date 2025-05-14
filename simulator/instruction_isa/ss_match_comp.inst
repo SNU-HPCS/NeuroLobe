@@ -1,0 +1,10 @@
+loop_corr(memory_name = 'template_to_electrode', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'lid'])
+    delay = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'delay'])
+    template = memory(access_type = 'read', mem_type = corr_mem['template_to_electrode', 'template'])
+    template = alu_comp(template * event_data)
+
+    bci = memory(access_type = 'read', mem_type = hist_mem['bci', dst_id, delay], no_loop_ctrl = True)
+    bci = alu_comp(bci + template)
+    memory(access_type = 'write', mem_type = hist_mem['bci', dst_id, delay], reg_data = bci)
+corr_end()

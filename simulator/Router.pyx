@@ -38,7 +38,6 @@ cdef class TaskScheduler:
             for task_id in range(GV.NUM_SCHEDULED_TASKS[self.ind]):
                 self.latency_budget[task_id] = max(self.latency_budget[task_id]-1, 0)
 
-    # FIXME: Implement the scheduler in verilog
     cpdef schedule(self, valid):
         # We should schedule bci_send_type (when not pending)
         # iterate over the valid list
@@ -271,12 +270,13 @@ cdef class Synchronizer:
 
         # If the ack is the root => we should decrement the ack
         if depth >= 0:
-            # FIXME : decrement ack 1cycle RMW
             decrement_cyc += 1
             ack_left = self.mem.read_ack_left(depth, ltask_id, 0)
             decrement_cyc += 1
             ack_left -= ack_num
-            if ack_left < 0: assert(0)
+            if ack_left < 0:
+                print(depth)
+                assert(0)
             self.mem.write_ack_left(depth, ltask_id, 0, ack_left)
             if ack_left == 0: self.sync_target = ltask_id
 
@@ -574,9 +574,12 @@ cdef class Router:
                         op_count['recv_buf_push'] += 1
             # Through ack-like method
             else:
-                packet['dst_x'] = data['dst_x']
-                packet['dst_y'] = data['dst_y']
-                packet['src_pid'] = data['lid']
+                dst_x = data['lid']['dst_x']
+                dst_y = data['lid']['dst_y']
+                lid = data['lid']['lid']
+                packet['dst_x'] = dst_x
+                packet['dst_y'] = dst_y
+                packet['src_pid'] = lid
                 dst_core_id = coord_to_ind(data['dst_x'], data['dst_y'])
                 packet['task_id'] = self.task_translation[dst_core_id][ltask_id]
                 if self.core.has_external:
@@ -621,8 +624,6 @@ cdef class Router:
                 event_type = None # probe packet doesn't require event 
             else:
                 event_type = self.get_packet_to_event(mode, pck_type, ltask_id)
-            
-            # print('event type', event_type)
 
             if event_type != None:
                 # if external & bci_send => send to the pending queue
@@ -635,6 +636,7 @@ cdef class Router:
                     self.core.external_module.pending_queue.append((ltask_id, gtask_id))
                     self.core.external_module.pending_cyc.append(GV.workload_cyc[gtask_id])
                 else:
+                    if event_type == None: assert(0)
                     self.in_event_buf.append(ltask_id, event_type, event_data)
 
     cpdef get_packet_to_route(self, pck_type, ltask_id):
@@ -645,8 +647,7 @@ cdef class Router:
             op_count['pck_to_route_table'] += 1
             if src_type == None: return None
             gtask_id = GV.ltask_to_gtask[self.ind][ltask_id]
-            route_name = "{}_to_{}".format(GV.sim_params['unit_type_name'][gtask_id][src_type],
-                                           GV.sim_params['unit_type_name'][gtask_id][dst_type])
+            route_name = "{}_to_{}".format(src_type, dst_type)
             return route_name
 
     cpdef get_packet_to_event(self, mode, pck_type, ltask_id):

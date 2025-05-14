@@ -1,0 +1,5 @@
+loop_corr(memory_name = 'bci_to_bci_neuron')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['bci_to_bci_neuron', 'lid'])
+    event_trigger(packet_type = 'nn_ext', reg_addr0 = dst_id, reg_addr1 = event_data)
+corr_end()
+

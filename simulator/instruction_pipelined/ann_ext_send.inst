@@ -1,0 +1,4 @@
+nid = loop_unit(unit_name = 'bci_neuron')
+    bci_hist = memory(access_type = 'read', mem_type = hist_mem['bci', nid])
+    event_trigger(packet_type = 'nn_ext', reg_addr0 = nid, reg_addr1 = bci_hist, condition = 'bci_hist != imm0')
+unit_end()

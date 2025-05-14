@@ -1,0 +1,7 @@
+const0 = set_register(immediate = imm0)
+const1 = set_register(immediate = imm1)
+nid = loop_unit(unit_name = 'pseudo_neuron')
+    waccum = memory(access_type = 'read', mem_type = hist_mem['spike_weight_accum', nid, const1])
+    memory(access_type = 'write', mem_type = hist_mem['spike_weight_accum', nid, const1], reg_data = const0)
+    event_trigger(packet_type = 'nn_spike_sum', reg_addr0 = nid, reg_addr1 = waccum, condition = 'waccum != imm0')
+unit_end()

@@ -1,0 +1,9 @@
+const1 = set_register(immediate = imm1)
+loop_corr(memory_name = 'bci_to_neuron', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['bci_to_neuron', 'lid'])
+
+    neuron_i_n = memory(access_type = 'read', mem_type = state_mem['neuron_i_n', dst_id])
+    neuron_i_n = alu_comp(neuron_i_n + const1)
+    memory(access_type = 'write', mem_type = state_mem['neuron_i_n', dst_id], reg_data = neuron_i_n)
+corr_end()
+

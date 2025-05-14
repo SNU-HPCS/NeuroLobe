@@ -1,0 +1,20 @@
+# generating recording dataset is divided into 2 steps
+# 1. template generation
+# - gen predefined extracellular waveform for each neuron
+# 2. recording generation
+# - gen recording using template
+
+[general]
+# mode = full, template, recording
+mode = full
+elec_num = 1600
+
+[template]
+sampling_freq = 20000
+
+[recording]
+# in second
+duration = 10
+# firing rate of exc, inh neuron
+f_exc = 5
+f_inh = 15 

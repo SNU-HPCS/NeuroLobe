@@ -1,0 +1,8 @@
+loop_corr(memory_name = 'pseudo_neuron_to_neuron', no_loop_ctrl = True)
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['pseudo_neuron_to_neuron', 'lid'])
+
+    waccum = memory(access_type = 'read', mem_type = hist_mem['weight_accum', dst_id])
+    waccum = alu_comp(waccum + event_data)
+    memory(access_type = 'write', mem_type = hist_mem['weight_accum', dst_id], reg_data = waccum)
+corr_end()
+

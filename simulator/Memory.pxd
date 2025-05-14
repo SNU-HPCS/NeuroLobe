@@ -9,11 +9,6 @@ cdef class Memory:
 
     cdef public list state_mem
     cdef public list state_mem_offset
-    cdef int state_mem_cache_size
-    cdef list state_mem_cache_dat
-    cdef list state_mem_cache_addr
-    cdef list state_mem_cache_dirty
-    cdef list state_mem_cache_queue
 
     # Three memory to keep data
     cdef list hist_mem_num_entries
@@ -90,8 +85,8 @@ cdef class Memory:
     cpdef write_state_mem(self, data_type, mem_offset, task_id, virtual_addr, write_dat)
     cpdef accum_state_mem(self, func_type, data_type, mem_offset, task_id, virtual_addr, write_dat, alu_dat = *)
     
-    cpdef read_hist_mem(self, data_type, mem_offset, task_id, virtual_addr, pos)
-    cpdef write_hist_mem(self, data_type, mem_offset, task_id, virtual_addr, pos, write_dat)
+    cpdef read_hist_mem(self, data_type, mem_offset, task_id, virtual_addr, pos, no_loop_ctrl = *)
+    cpdef write_hist_mem(self, data_type, mem_offset, task_id, virtual_addr, pos, write_dat, no_loop_ctrl = *)
     cpdef accum_hist_mem(self, func_type, data_type, mem_offset, task_id, virtual_addr, pos, write_dat, alu_dat = *)
     cpdef increment_pos(self, ltask_id)
     cpdef get_hist_addr(self, data_type, ltask_id, virtual_addr, pos)

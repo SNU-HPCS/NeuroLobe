@@ -1,0 +1,24 @@
+const_m1 = set_register(immediate = imm-1)
+loop_corr(memory_name = 'neuron_to_partial_template')
+    dst_id = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_template', 'lid'])
+    
+    event_sq = alu_comp(event_data * event_data)
+
+    P2 = memory(access_type = 'read', mem_type = state_mem['template_psums_P2', dst_id])
+    P2 = alu_comp(P2 + event_data)
+    memory(access_type = 'write', mem_type = state_mem['template_psums_P2', dst_id], reg_data = P2)
+
+    P3 = memory(access_type = 'read', mem_type = state_mem['template_psums_P3', dst_id])
+    P3 = alu_comp(P3 + event_sq)
+    memory(access_type = 'write', mem_type = state_mem['template_psums_P3', dst_id], reg_data = P3)
+
+    time_idx = loop_corr(memory_name = 'neuron_to_partial_template', loop_type = 'inner', immediate = const['temp_width'], forward_order = False, include_ts = False)
+        template = memory(access_type = 'read', mem_type = corr_mem['neuron_to_partial_template', 'template'])
+        template = alu_comp(template * event_data)
+
+        P1 = memory(access_type = 'read', mem_type = hist_mem['P1', dst_id, time_idx])
+        P1 = alu_comp(P1 + template)
+        memory(access_type = 'write', mem_type = hist_mem['P1', dst_id, time_idx], reg_data = P1)
+    corr_end()
+corr_end()
+
